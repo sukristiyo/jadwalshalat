@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Shalat</title>
+    <meta name="description" content="Jadwal Shalat Harian Akurat dengan Deteksi Lokasi Otomatis">
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Custom CSS (Imported via main.js) -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="app-title">
+                    <i class="ph-fill ph-mosque"></i> <span data-i18n="app_title">Jadwal Shalat</span>
+                </div>
+                <!-- Wide Language Toggle (Right Aligned) -->
+                <div class="lang-wide-toggle" id="lang-toggle-btn">
+                    <span class="lang-label" id="label-id">BAHASA</span>
+                    <div class="toggle-track">
+                        <div class="toggle-handle"></div>
+                    </div>
+                    <span class="lang-label" id="label-en">ENGLISH</span>
+                </div>
+            </div>
+            <div class="header-content sub-header">
+                <!-- Location & Date -->
+                <div class="location-display" id="location-btn">
+                    <i class="ph-fill ph-map-pin"></i>
+                    <span id="location-text" data-i18n="detecting">Mendeteksi...</span>
+                </div>
+                <div class="date-display">
+                   <span id="full-date">...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero: Floating Next Prayer Card -->
+        <div class="hero-container">
+            <div class="next-prayer-card" id="hero-card">
+                <div class="next-prayer-info">
+                    <h3 data-i18n="next_prayer">Sholat Selanjutnya</h3>
+                    <div class="next-prayer-name" id="next-prayer-name">...</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-timer" id="countdown">00:00:00</div>
+                    <div class="countdown-label" data-i18n="countdown_label">Menuju Waktu Sholat</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Prayer List -->
+        <main class="main-content">
+            <div class="prayer-list" id="prayer-list">
+                <!-- Loading State -->
+                <div class="loading-state">
+                    <i class="ph ph-spinner ph-spin" style="font-size: 24px;"></i>
+                    <p data-i18n="loading_schedule">Memuat Jadwal...</p>
+                </div>
+            </div>
+
+            <!-- Feature Banners -->
+            <section class="feature-banners">
+                <div class="feature-card" onclick="document.getElementById('quran-section').classList.remove('hidden'); document.getElementById('quran-section').scrollIntoView({behavior: 'smooth'})">
+                    <div class="feature-text">
+                        <h3 data-i18n="btn_quran">Baca Al-Qur'an</h3>
+                        <p data-i18n="btn_quran_desc">dan Terjemahannya</p>
+                        <span class="action-link" data-i18n="click_here">Klik Disini</span>
+                    </div>
+                    <img src="icon_quran.png" alt="Quran" class="feature-img">
+                </div>
+                <div class="feature-card" onclick="window.open('https://qiblafinder.withgoogle.com', '_blank')">
+                    <div class="feature-text">
+                        <h3 data-i18n="btn_qibla">Arah Kiblat</h3>
+                        <p data-i18n="btn_qibla_desc">Cari Arah Kiblat</p>
+                        <span class="action-link" data-i18n="click_here">Klik Disini</span>
+                    </div>
+                    <img src="icon_kaaba.png" alt="Kaaba" class="feature-img">
+                </div>
+            </section>
+
+            <!-- Monthly Schedule Table -->
+            <section class="monthly-schedule-section">
+                <h3 class="section-title"><span data-i18n="monthly_schedule">Jadwal Sholat Bulan Ini</span> : <span id="month-year-title">...</span></h3>
+                <div class="table-responsive">
+                    <table class="monthly-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="date">Tanggal</th>
+                                <th data-i18n="fajr">Subuh</th>
+                                <th data-i18n="dhuhr">Dzuhur</th>
+                                <th data-i18n="asr">Ashar</th>
+                                <th data-i18n="maghrib">Maghrib</th>
+                                <th data-i18n="isha">Isya</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthly-tbody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Quran Section (Hidden by default) -->
+            <section class="quran-section hidden" id="quran-section">
+                <div class="section-header">
+                    <h3 class="section-title" data-i18n="read_quran">Baca Al-Qur'an</h3>
+                    <div class="search-box">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" id="quran-search" placeholder="Cari Surah...">
+                    </div>
+                </div>
+                
+                <div class="quran-grid" id="quran-list">
+                    <!-- Surah Items Injected Here -->
+                    <div class="loading-state">
+                        <i class="ph ph-spinner ph-spin"></i> <span data-i18n="loading_quran">Memuat Al-Qur'an...</span>
+                    </div>
+                </div>
+            </section>
+
+            
+            <div class="settings-trigger-container">
+                <button class="settings-btn" id="open-settings-btn">
+                    <i class="ph ph-gear"></i> <span data-i18n="settings">Pengaturan</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="settings">Pengaturan</h2>
+                    <button id="close-settings" style="background:none; border:none; font-size:20px; cursor:pointer;"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label data-i18n="calc_method">Metode Perhitungan</label>
+                        <select id="calc-method-select">
+                            <option value="20" data-i18n="method_kemenag">Kemenag RI</option>
+                            <option value="3" data-i18n="method_mwl">Muslim World League</option>
+                            <option value="4" data-i18n="method_makkah">Umm Al-Qura (Makkah)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" id="save-settings" data-i18n="save">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quran Detail Modal -->
+        <div id="quran-modal" class="modal full-screen hidden">
+            <div class="modal-content full-screen-content">
+                <div class="modal-header sticky-header">
+                    <div class="header-left">
+                        <button id="close-quran" class="icon-btn"><i class="ph ph-arrow-left"></i></button>
+                        <h2 id="quran-title-modal">Nama Surah</h2>
+                    </div>
+                    <div class="header-right">
+                        <button id="play-quran-btn" class="icon-btn highlight"><i class="ph-fill ph-play-circle"></i> Putar Audio</button>
+                    </div>
+                </div>
+                <!-- Audio Player (Hidden initially) -->
+                <audio id="quran-audio-player" class="hidden"></audio>
+                
+                <div class="modal-body quran-content" id="quran-detail-list">
+                    <!-- Ayahs injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- App Footer -->
+        <footer class="app-footer">
+            <p>Design by <span class="creator-name">Sukristiyo</span></p>
+        </footer>
+
+    </div>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('SW registration failed: ', err);
+          });
+        });
+      }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
