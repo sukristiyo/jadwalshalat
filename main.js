@@ -92,7 +92,8 @@ const state = {
     },
     prayers: null,
     nextPrayer: null,
-    lang: localStorage.getItem('appLang') || 'id'
+    lang: localStorage.getItem('appLang') || 'id',
+    theme: localStorage.getItem('appTheme') || 'light'
 };
 
 // --- DOM Elements ---
@@ -116,11 +117,46 @@ const dom = {
     cityInput: document.getElementById('manual-city-input'),
     methodSelect: document.getElementById('calc-method-select'),
     
-    // Wide Toggle
+    // Wide Toggles
     toggleBtn: document.getElementById('lang-toggle-btn'),
     labelId: document.getElementById('label-id'),
-    labelEn: document.getElementById('label-en')
+    labelEn: document.getElementById('label-en'),
+    
+    themeBtn: document.getElementById('theme-toggle-btn'),
+    labelLight: document.getElementById('label-light'),
+    labelDark: document.getElementById('label-dark')
 };
+
+function initTheme() {
+    const theme = state.theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeUI(theme);
+}
+
+function updateThemeUI(theme) {
+    if (dom.themeBtn && dom.labelLight && dom.labelDark) {
+        if (theme === 'dark') {
+            dom.themeBtn.classList.add('active-right');
+            dom.labelLight.classList.remove('active');
+            dom.labelDark.classList.add('active');
+        } else {
+            dom.themeBtn.classList.remove('active-right');
+            dom.labelLight.classList.add('active');
+            dom.labelDark.classList.remove('active');
+        }
+    }
+}
+
+// Theme Toggle Listener
+if (dom.themeBtn) {
+    dom.themeBtn.addEventListener('click', () => {
+        const newTheme = state.theme === 'light' ? 'dark' : 'light';
+        state.theme = newTheme;
+        localStorage.setItem('appTheme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        updateThemeUI(newTheme);
+    });
+}
 
 function updateLanguage(lang) {
     state.lang = lang;
@@ -129,11 +165,11 @@ function updateLanguage(lang) {
     // Update Toggle UI
     if (dom.toggleBtn && dom.labelId && dom.labelEn) {
         if (lang === 'en') {
-            dom.toggleBtn.classList.add('en-active');
+            dom.toggleBtn.classList.add('active-right');
             dom.labelId.classList.remove('active');
             dom.labelEn.classList.add('active');
         } else {
-            dom.toggleBtn.classList.remove('en-active');
+            dom.toggleBtn.classList.remove('active-right');
             dom.labelId.classList.add('active');
             dom.labelEn.classList.remove('active');
         }
@@ -171,8 +207,9 @@ if (dom.toggleBtn) {
     });
 }
 
-// Call initLanguage on startup
+// Call initLanguage and initTheme on startup
 updateLanguage(state.lang);
+initTheme();
 
 
 // --- API ---

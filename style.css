@@ -1,18 +1,51 @@
 :root {
-    /* Umroh.com Inspired Palette */
+    /* --- Light Theme (Default) --- */
     --primary: #008B4B; /* Emerald Green */
     --primary-dark: #006837; /* Darker Green */
     --primary-gradient: linear-gradient(135deg, #00A859 0%, #008B4B 100%);
     --accent: #F59E0B; /* Orange */
+    
+    --bg-body: #F3F4F6;
+    --bg-card: #FFFFFF;
+    --bg-header: linear-gradient(135deg, #00A859 0%, #008B4B 100%);
+    --bg-modal: #FFFFFF;
+    
     --text-main: #1F2937;
     --text-muted: #6B7280;
-    --bg-body: #F3F4F6;
-    --white: #FFFFFF;
+    --text-header: #FFFFFF;
     
-    /* Shadows & Radius */
+    --border-color: #E5E7EB;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
     --radius-brand: 12px;
+    
+    --card-green-bg: #E8F5E9;
+    --chip-bg: #F9FAFB;
+    --chip-border: #E5E7EB;
+}
+
+/* --- Dark Theme Override --- */
+[data-theme="dark"] {
+    --primary: #00A859; /* Lighter Green for visibility */
+    --primary-dark: #4ADE80; 
+    --primary-gradient: linear-gradient(135deg, #064E3B 0%, #065F46 100%); /* Dark Forest */
+    
+    --bg-body: #111827; /* Very Dark Gray */
+    --bg-card: #1F2937; /* Dark Gray Card */
+    --bg-header: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
+    --bg-modal: #1F2937;
+    
+    --text-main: #F3F4F6; /* Light Gray Text */
+    --text-muted: #9CA3AF;
+    --text-header: #E5E7EB;
+    
+    --border-color: #374151;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    
+    --card-green-bg: #064E3B; /* Darker Green Card */
+    --chip-bg: #374151;
+    --chip-border: #4B5563;
 }
 
 * {
@@ -39,10 +72,10 @@ body {
 
 /* --- Header Section --- */
 .app-header {
-    background: var(--primary-gradient);
+    background: var(--bg-header);
     padding: 20px;
     padding-bottom: 80px; /* Space for the floating card */
-    color: var(--white);
+    color: var(--text-header);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -65,65 +98,100 @@ body {
     pointer-events: none;
 }
 
+
+
 /* Header: Full Width for Edge Positioning */
+/* Header: Responsive Layout */
+/* Header Content (Title) */
 .header-content {
     position: relative;
     z-index: 2;
-    width: 100%;
-    max-width: 100%;
-    padding: 0 10px;
-    margin: 0 auto;
-    display: flex; 
-    justify-content: center; /* Center the Title */
-    align-items: center;
+    padding: 10px;
     margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Wide Toggle Styles - Absolute Right */
-.lang-wide-toggle {
-    position: absolute; /* Take out of flow */
-    right: 20px;
-    top: 50%; /* Center vertically relative to top row */
-    transform: translateY(-50%);
+/* Header Controls Container */
+.header-controls {
+    position: relative;
+    z-index: 10; /* Ensure on top */
+    display: flex;
+    justify-content: center; /* Center on mobile */
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Tablet/Desktop: Absolute Positioning */
+@media (min-width: 640px) {
+    .header-controls {
+        position: absolute;
+        right: 20px;
+        top: 30px; /* Aligned with title roughly */
+        margin-bottom: 0;
+    }
     
+    .header-content {
+        margin-bottom: 8px;
+    }
+    .header-content {
+        margin-bottom: 8px;
+    }
+}
+
+/* Sub Header (Location & Date) */
+.sub-header {
+    flex-direction: column !important; /* Force stack even on desktop */
+    gap: 4px;
+    margin-top: 0;
+}
+
+/* Generic Wide Toggle Styles */
+.wide-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px 8px; /* More compact */
     border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
     transition: background 0.2s;
 }
 
-.sub-header {
-    flex-direction: column; /* Stack Location and Date */
-    gap: 8px;
-    margin-bottom: 0;
-    font-size: 0.9em;
+.wide-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 
-.lang-wide-toggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.lang-label {
-    font-size: 10px;
+.toggle-label {
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    color: rgba(255, 255, 255, 0.6); /* Dim inactive text */
+    color: rgba(255, 255, 255, 0.5);
     transition: color 0.3s;
+    min-width: 14px;
+    text-align: center;
 }
 
-.lang-label.active {
-    color: white; /* Bright active text */
+.toggle-icon {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-label.active,
+.toggle-icon.active {
+    color: white;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
 /* The Switch Track */
 .toggle-track {
-    width: 32px;
-    height: 18px;
+    width: 28px; /* Smaller track */
+    height: 16px;
     background: rgba(0, 0, 0, 0.2);
     border-radius: 20px;
     position: relative;
@@ -132,8 +200,8 @@ body {
 
 /* The Switch Handle (Circle) */
 .toggle-handle {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     background: white;
     border-radius: 50%;
     position: absolute;
@@ -143,13 +211,13 @@ body {
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
-/* Active State (Right/EN) */
-.lang-wide-toggle.en-active .toggle-handle {
-    transform: translateX(14px);
+/* Active State (Right Side) */
+.wide-toggle.active-right .toggle-handle {
+    transform: translateX(12px); /* Adjusted for smaller track */
 }
 
-.lang-wide-toggle.en-active .toggle-track {
-    background: var(--accent); /* Orange highlight for active state toggle */
+.wide-toggle.active-right .toggle-track {
+    background: var(--accent);
 }
 
 .app-title {
@@ -197,7 +265,7 @@ body {
 
 .next-prayer-card {
     background: var(--primary-dark);
-    color: var(--white);
+    color: var(--text-header);
     width: 100%;
     max-width: 600px;
     padding: 24px;
@@ -271,7 +339,7 @@ body {
 @media (min-width: 768px) {
     .prayer-list {
         flex-direction: row;
-        background: var(--white);
+        background: var(--bg-card);
         padding: 20px;
         border-radius: 16px;
         box-shadow: var(--shadow-sm);
@@ -300,13 +368,13 @@ body {
     }
 
     .prayer-item.active {
-        background: var(--primary-gradient);
-        color: var(--white);
+        background: var(--bg-header);
+        color: var(--text-header);
     }
     
     .prayer-item.active .prayer-name,
     .prayer-item.active .prayer-time {
-        color: var(--white);
+        color: var(--text-header);
     }
 
     .prayer-item:not(:last-child).active::after {
@@ -333,7 +401,7 @@ body {
     }
 
     .prayer-item {
-        background: var(--white);
+        background: var(--bg-card);
         padding: 16px 20px;
         border-radius: 12px;
         display: flex;
@@ -344,7 +412,7 @@ body {
 
     .prayer-item.active {
         background: var(--primary-dark);
-        color: var(--white);
+        color: var(--text-header);
         border: 1px solid var(--primary);
     }
 
@@ -362,7 +430,7 @@ body {
     .prayer-item.active .prayer-icon,
     .prayer-item.active .prayer-name,
     .prayer-item.active .prayer-time {
-        color: var(--white);
+        color: var(--text-header);
     }
 
     .prayer-name {
@@ -414,7 +482,7 @@ body {
 }
 
 .modal-content {
-    background: var(--white);
+    background: var(--bg-card);
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
@@ -460,7 +528,7 @@ body {
     overflow-x: auto;
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
-    background: var(--white);
+    background: var(--bg-card);
     border: 1px solid #E5E7EB;
 }
 
@@ -479,7 +547,7 @@ body {
 }
 
 .monthly-table th {
-    background: var(--white);
+    background: var(--bg-card);
     color: var(--primary);
     font-weight: 700;
     text-transform: uppercase;
@@ -492,12 +560,12 @@ body {
 }
 
 .monthly-table tr.active-row {
-    background: var(--primary-gradient);
-    color: var(--white);
+    background: var(--bg-header);
+    color: var(--text-header);
 }
 
 .monthly-table tr.active-row td {
-    color: var(--white);
+    color: var(--text-header);
     border-bottom-color: rgba(255,255,255,0.1);
     font-weight: 600;
 }
@@ -554,7 +622,7 @@ body {
 }
 
 .quran-card {
-    background: var(--white);
+    background: var(--bg-card);
     padding: 16px;
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
@@ -621,7 +689,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--white);
+    background: var(--bg-card);
     box-shadow: var(--shadow-sm);
     z-index: 10;
 }
@@ -728,7 +796,7 @@ body {
 }
 
 .feature-card {
-    background: #E8F5E9; /* Light Green */
+    background: var(--card-green-bg); /* Light Green */
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -785,7 +853,7 @@ body {
 .popular-cities-section {
     margin-bottom: 30px;
     padding: 20px;
-    background: var(--white);
+    background: var(--bg-card);
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
 }
@@ -797,8 +865,8 @@ body {
 }
 
 .city-chip {
-    border: 1px solid #E5E7EB;
-    background: #F9FAFB;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 13px;
