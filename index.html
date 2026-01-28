@@ -31,6 +31,11 @@
 
             <!-- Header Controls (Right Aligned) -->
             <div class="header-controls">
+                <!-- Notification Toggle -->
+                <button id="notification-btn" class="icon-btn notification-toggle" aria-label="Toggle Adhan Notification">
+                    <i class="ph ph-bell-slash"></i>
+                </button>
+
                 <!-- Theme Toggle -->
                 <div class="wide-toggle" id="theme-toggle-btn" title="Ganti Tema">
                     <span class="toggle-icon active" id="label-light"><i class="ph-fill ph-sun"></i></span>
@@ -60,6 +65,9 @@
                 </div>
             </div>
         </header>
+
+        <!-- Audio Resources -->
+        <audio id="azan-audio" src="https://www.islamcan.com/audio/adhan/azan1.mp3" preload="none"></audio>
 
         <!-- Hero: Floating Next Prayer Card -->
         <div class="hero-container">

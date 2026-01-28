@@ -370,7 +370,18 @@ function startCountdown(targetTimeStr, isTomorrow = false) {
         const diff = target.getTime() - nowMs;
         
         if (diff < 0) {
-            window.location.reload(); 
+            clearInterval(window.timerInterval);
+            dom.countdown.innerText = "00 : 00 : 00";
+            
+            // Trigger Notification & Audio
+            if (state.nextPrayer) {
+                triggerAdhan(state.nextPrayer.name);
+            }
+            
+            // Delay reload to let audio play (approx 3 mins)
+            setTimeout(() => {
+                window.location.reload();
+            }, 180000); 
             return;
         }
         
@@ -1038,3 +1049,101 @@ if (closeQiblaBtn) {
     });
 }
 
+
+// --- Adhan Notification Logic ---
+
+const notificationBtn = document.getElementById('notification-btn');
+const azanAudio = document.getElementById('azan-audio');
+let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
+
+// Update Notification Icon State
+function updateNotificationUI() {
+    if (notificationEnabled) {
+        notificationBtn.innerHTML = '<i class="ph-fill ph-bell-ringing"></i>'; // Active Icon
+        notificationBtn.classList.add('active');
+    } else {
+        notificationBtn.innerHTML = '<i class="ph ph-bell-slash"></i>'; // Inactive Icon
+        notificationBtn.classList.remove('active');
+        if (azanAudio) {
+            azanAudio.pause();
+            azanAudio.currentTime = 0;
+        }
+    }
+}
+
+// Toggle Notification
+if (notificationBtn) {
+    updateNotificationUI();
+    
+    notificationBtn.addEventListener('click', () => {
+        if (!notificationEnabled) {
+            // Request Permission
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        notificationEnabled = true;
+                        localStorage.setItem('notificationEnabled', 'true');
+                        updateNotificationUI();
+                        // Test Play to unlock audio on mobile
+                        if (azanAudio) {
+                            azanAudio.play().then(() => {
+                                azanAudio.pause();
+                                azanAudio.currentTime = 0;
+                            }).catch(err => console.log("Audio unlock failed, wait for real event", err));
+                        }
+                        new Notification("Notifikasi Diaktifkan", { body: "InsyaAllah Anda akan diingatkan waktu shalat." });
+                    } else {
+                        alert("Izin notifikasi ditolak browser.");
+                    }
+                });
+            } else {
+                alert("Browser tidak mendukung notifikasi.");
+            }
+        } else {
+            // Turn Off
+            notificationEnabled = false;
+            localStorage.setItem('notificationEnabled', 'false');
+            updateNotificationUI();
+        }
+    });
+}
+
+// Function to Trigger Adhan (Call this when countdown reaches 0)
+function triggerAdhan(prayerName) {
+    if (!notificationEnabled) return;
+    
+    // 1. Play Audio
+    if (azanAudio) {
+        azanAudio.currentTime = 0;
+        azanAudio.play().catch(e => console.error("Audio Play Error:", e));
+    }
+    
+    // 2. Show Notification
+    if ("Notification" in window && Notification.permission === "granted") {
+        const notif = new Notification(`Waktunya Shalat ${prayerName}`, {
+            body: "Mari segerakan shalat.",
+            icon: '/icon_kaaba.png',
+            requireInteraction: true
+        });
+        
+        notif.onclick = function() {
+            window.focus();
+            if (azanAudio) {
+                azanAudio.pause();
+                azanAudio.currentTime = 0;
+            }
+            this.close();
+        };
+    }
+}
+
+// Hook into Countdown Logic (Overwrite/Extend timer check)
+// Since we used setInterval logic inside startCountdown, we need to inject this trigger there.
+// But startCountdown assumes reload on diff < 0.
+// We should trigger slightly BEFORE reload or handle it specially.
+
+// We will Monkey Patch the reload behavior in startCountdown? 
+// No, risky. Better to check in `update()` loop.
+// Since `startCountdown` logic is inside a closure in main.js, we can't easily hook it without modifying `startCountdown` function itself.
+
+// Let's MODIFY startCountdown function to include triggerAdhan.
