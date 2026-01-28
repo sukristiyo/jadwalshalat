@@ -213,7 +213,7 @@ initTheme();
 
 
 // --- API ---
-const API_BASE = 'http://api.aladhan.com/v1';
+const API_BASE = 'https://api.aladhan.com/v1';
 
 // Weather API Configuration
 const WEATHER_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your OpenWeatherMap API key

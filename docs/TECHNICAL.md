@@ -55,7 +55,7 @@ Data dari Aladhan API diproses untuk ditampilkan ke UI.
 ## Integrasi API
 
 ### Aladhan API (Jadwal Shalat)
-- **Base URL**: `http://api.aladhan.com/v1`
+- **Base URL**: `https://api.aladhan.com/v1`
 - **Endpoints**:
     - `/timings`: Paling sering digunakan untuk data hari ini.
     - `/calendar`: Digunakan untuk tabel jadwal bulanan.
