@@ -75,6 +75,29 @@
             </div>
         </div>
 
+        <!-- Weather Card (Below Hero) -->
+        <div class="weather-container" id="weather-container" style="display: none;">
+            <div class="weather-card" id="weather-card">
+                <div class="weather-main">
+                    <img id="weather-icon" src="" alt="Weather Icon" class="weather-icon">
+                    <div class="weather-temp-info">
+                        <div class="weather-temp" id="weather-temp">--°</div>
+                        <div class="weather-desc" id="weather-desc">Loading...</div>
+                    </div>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-detail-item">
+                        <i class="ph ph-drop"></i>
+                        <span id="weather-humidity">--%</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <i class="ph ph-wind"></i>
+                        <span id="weather-wind">-- km/h</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content: Prayer List -->
         <main class="main-content">
             <div class="prayer-list" id="prayer-list">
@@ -146,6 +169,7 @@
             </section>
 
             
+
             <div class="settings-trigger-container">
                 <button class="settings-btn" id="open-settings-btn">
                     <i class="ph ph-gear"></i> <span data-i18n="settings">Pengaturan</span>
@@ -176,6 +200,8 @@
             </div>
         </div>
 
+
+
         <!-- Quran Detail Modal -->
         <div id="quran-modal" class="modal full-screen hidden">
             <div class="modal-content full-screen-content">
@@ -199,7 +225,10 @@
 
         <!-- App Footer -->
         <footer class="app-footer">
-            <p>Design by <span class="creator-name">Sukristiyo</span></p>
+            <div class="footer-content">
+                <p>Created with <i class="ph-fill ph-heart heart-pulse"></i> by <span class="creator-name">Sukristiyo</span></p>
+                <p class="copyright">&copy; 2026 Jadwal Shalat App</p>
+            </div>
         </footer>
 
     </div>

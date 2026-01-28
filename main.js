@@ -215,6 +215,93 @@ initTheme();
 // --- API ---
 const API_BASE = 'http://api.aladhan.com/v1';
 
+// Weather API Configuration
+const WEATHER_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your OpenWeatherMap API key
+const WEATHER_API = 'https://api.openweathermap.org/data/2.5/weather';
+
+// Fetch Weather Data with Cache (30 minutes)
+async function fetchWeatherData(lat, lng) {
+    // Check cache first (30 minutes)
+    const cached = localStorage.getItem('weatherCache');
+    if (cached) {
+        try {
+            const data = JSON.parse(cached);
+            const now = Date.now();
+            if (now - data.timestamp < 30 * 60 * 1000) { // 30 minutes
+                console.log('Using cached weather data');
+                return data.weather;
+            }
+        } catch (e) {
+            console.error('Cache parse error:', e);
+            localStorage.removeItem('weatherCache');
+        }
+    }
+    
+    // Check if API key is set
+    if (WEATHER_API_KEY === 'YOUR_API_KEY_HERE') {
+        console.warn('Weather API key not set');
+        return null;
+    }
+    
+    try {
+        const url = `${WEATHER_API}?lat=${lat}&lon=${lng}&appid=${WEATHER_API_KEY}&units=metric&lang=id`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Weather API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Save to cache
+        localStorage.setItem('weatherCache', JSON.stringify({
+            weather: data,
+            timestamp: Date.now()
+        }));
+        
+        console.log('Weather data fetched:', data);
+        return data;
+    } catch (error) {
+        console.error('Weather Fetch Error:', error);
+        return null;
+    }
+}
+
+// Render Weather Card
+function renderWeatherCard(weatherData) {
+    const weatherContainer = document.getElementById('weather-container');
+    const weatherCard = document.getElementById('weather-card');
+    
+    if (!weatherData || !weatherContainer || !weatherCard) {
+        if (weatherContainer) weatherContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show container
+    weatherContainer.style.display = 'block';
+    
+    // Extract data
+    const temp = Math.round(weatherData.main.temp);
+    const description = weatherData.weather[0].description;
+    const icon = weatherData.weather[0].icon;
+    const humidity = weatherData.main.humidity;
+    const windSpeed = Math.round(weatherData.wind.speed * 3.6); // m/s to km/h
+    
+    // Update DOM
+    const weatherIcon = document.getElementById('weather-icon');
+    const weatherTemp = document.getElementById('weather-temp');
+    const weatherDesc = document.getElementById('weather-desc');
+    const weatherHumidity = document.getElementById('weather-humidity');
+    const weatherWind = document.getElementById('weather-wind');
+    
+    if (weatherIcon) weatherIcon.src = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+    if (weatherTemp) weatherTemp.innerText = `${temp}°C`;
+    if (weatherDesc) weatherDesc.innerText = description.charAt(0).toUpperCase() + description.slice(1);
+    if (weatherHumidity) weatherHumidity.innerText = `${humidity}%`;
+    if (weatherWind) weatherWind.innerText = `${windSpeed} km/h`;
+}
+
+
 async function fetchPrayers(lat, lng) {
     const date = new Date();
     const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
@@ -380,6 +467,13 @@ function renderMonthlyTable(monthlyData) {
 
     const tbody = document.getElementById('monthly-tbody');
     const title = document.getElementById('month-year-title');
+    
+    // Guard: if elements not found, return early
+    if (!tbody || !title) {
+        console.warn('Monthly table elements not found');
+        return;
+    }
+    
     const today = new Date();
     const currentDay = today.getDate();
     
@@ -534,14 +628,15 @@ async function loadData() {
     console.log("Loading Data...");
     dom.prayerList.innerHTML = '<div class="loading-state"><i class="ph ph-spinner ph-spin"></i><p>Memuat Jadwal...</p></div>';
     
-    // Parallel Fetch
+    // Parallel Fetch: Prayer, Monthly, and Weather
     try {
-        const [dailyData, monthlyData] = await Promise.all([
+        const [dailyData, monthlyData, weatherData] = await Promise.all([
             fetchPrayers(state.location.lat, state.location.lng),
-            fetchMonthlyPrayers(state.location.lat, state.location.lng)
+            fetchMonthlyPrayers(state.location.lat, state.location.lng),
+            fetchWeatherData(state.location.lat, state.location.lng)
         ]);
 
-        console.log("Data loaded:", { dailyData, monthlyData });
+        console.log("Data loaded:", { dailyData, monthlyData, weatherData });
 
         if(dailyData) {
             state.prayers = dailyData;
@@ -552,6 +647,11 @@ async function loadData() {
 
         if(monthlyData) {
             renderMonthlyTable(monthlyData);
+        }
+        
+        // Render Weather Card
+        if(weatherData) {
+            renderWeatherCard(weatherData);
         }
     } catch (err) {
         console.error("Error loading data:", err);
