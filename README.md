@@ -9,7 +9,7 @@
 
 **Aplikasi web modern untuk jadwal shalat harian, Al-Qur'an digital lengkap dengan audio, dan fitur cuaca**
 
-[Demo Live](#) • [Lapor Bug](https://github.com/yourusername/jadwalshalat/issues) • [Request Fitur](https://github.com/yourusername/jadwalshalat/issues)
+[Live Website](https://jadwalsholatku.site) • [Lapor Bug](mailto:sukrisstiyo29@gmail.com) • [Request Fitur](mailto:sukrisstiyo29@gmail.com)
 
 </div>
 
@@ -275,8 +275,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 📞 Support
 
 Jika Anda menemukan bug atau punya pertanyaan:
-- 🐛 [Report Bug](https://github.com/sukristiyo/jadwalshalat/issues)
-- 💡 [Request Feature](https://github.com/sukristiyo/jadwalshalat/issues)
+- 🐛 [Report Bug](mailto:sukrisstiyo29@gmail.com)
+- 💡 [Request Feature](mailto:sukrisstiyo29@gmail.com)
 - 📧 Email: sukrisstiyo29@gmail.com
 
 ---
