@@ -9,7 +9,7 @@ Klik tombol "Fork" di pojok kanan atas halaman repository.
 
 ### 2. Clone Fork Anda
 ```bash
-git clone https://github.com/YOUR_USERNAME/jadwalshalat.git
+git clone https://github.com/sukristiyo/jadwalshalat.git
 cd jadwalshalat
 npm install
 ```
