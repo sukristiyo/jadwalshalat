@@ -201,6 +201,21 @@
                             <option value="4" data-i18n="method_makkah">Umm Al-Qura (Makkah)</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Suara Azan</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="azan-sound-select" style="flex: 1;">
+                                <option value="https://www.islamcan.com/audio/adhan/azan1.mp3">Azan 1 (Alafasy)</option>
+                                <option value="https://www.islamcan.com/audio/adhan/azan2.mp3">Azan 2 (Medina)</option>
+                                <option value="https://www.islamcan.com/audio/adhan/azan3.mp3">Azan 3 (Makkah)</option>
+                                <option value="https://www.islamcan.com/audio/adhan/azan4.mp3">Azan 4 (Yusuf Islam)</option>
+                            </select>
+                            <button id="preview-azan-btn" class="icon-btn" title="Tes Suara" style="background: var(--primary); color: white; border-radius: 8px; width: 42px;">
+                                <i class="ph ph-play"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn-primary" id="save-settings" data-i18n="save">Simpan</button>

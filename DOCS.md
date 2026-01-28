@@ -67,7 +67,8 @@ Berikut adalah panduan lengkap mengenai fitur-fitur yang telah diimplementasikan
 2. Klik ikon tersebut. Browser akan meminta izin notifikasi -> Pilih **"Allow" / "Izinkan"**.
 3. Ikon akan berubah menjadi **Lonceng Aktif** (🔔).
 
-**Saat Waktu Tiba:**
+- **Pilih Suara Azan**: Anda dapat mengganti pilihan suara Azan (Mekkah, Madinah, dll) melalui menu **Pengaturan**.
+- **Fitur Preview**: Klik ikon ▶️ di sebelah pilihan suara untuk mengetes suara sebelum menyimpan.
 - Audio Azan akan berbunyi otomatis.
 - Notifikasi "Waktunya Shalat" akan muncul di layar (meskipun aplikasi di-minimize).
 - Halaman akan refresh otomatis setelah 3 menit untuk memuat jadwal shalat berikutnya.

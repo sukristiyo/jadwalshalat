@@ -88,7 +88,8 @@ const state = {
         manual: false
     },
     settings: {
-        method: localStorage.getItem('calcMethod') || '20' 
+        method: localStorage.getItem('calcMethod') || '20',
+        azanSound: localStorage.getItem('azanSound') || 'https://www.islamcan.com/audio/adhan/azan1.mp3'
     },
     prayers: null,
     nextPrayer: null,
@@ -116,6 +117,8 @@ const dom = {
     saveSettingsBtn: document.getElementById('save-settings'),
     cityInput: document.getElementById('manual-city-input'),
     methodSelect: document.getElementById('calc-method-select'),
+    azanSelect: document.getElementById('azan-sound-select'),
+    previewAzanBtn: document.getElementById('preview-azan-btn'),
     
     // Wide Toggles
     toggleBtn: document.getElementById('lang-toggle-btn'),
@@ -675,6 +678,10 @@ async function loadData() {
 if (dom.openSettingsBtn) {
     dom.openSettingsBtn.addEventListener('click', () => {
         if (dom.modal) {
+            // Set current values to UI
+            if (dom.methodSelect) dom.methodSelect.value = state.settings.method;
+            if (dom.azanSelect) dom.azanSelect.value = state.settings.azanSound;
+            
             dom.modal.classList.add('active');
             dom.modal.classList.remove('hidden');
         }
@@ -694,8 +701,39 @@ if (dom.saveSettingsBtn) {
             state.settings.method = newMethod;
             localStorage.setItem('calcMethod', newMethod);
         }
+        if (dom.azanSelect) {
+            const newSound = dom.azanSelect.value;
+            state.settings.azanSound = newSound;
+            localStorage.setItem('azanSound', newSound);
+            if (azanAudio) azanAudio.src = newSound;
+        }
         if (dom.modal) dom.modal.classList.remove('active');
         loadData();
+    });
+}
+
+// Preview Adhan Listener
+if (dom.previewAzanBtn && dom.azanSelect) {
+    let isPreviewing = false;
+    dom.previewAzanBtn.addEventListener('click', () => {
+        if (isPreviewing) {
+            azanAudio.pause();
+            azanAudio.currentTime = 0;
+            dom.previewAzanBtn.innerHTML = '<i class="ph ph-play"></i>';
+            isPreviewing = false;
+            return;
+        }
+
+        const selectedSound = dom.azanSelect.value;
+        azanAudio.src = selectedSound;
+        azanAudio.play();
+        dom.previewAzanBtn.innerHTML = '<i class="ph ph-stop"></i>';
+        isPreviewing = true;
+
+        azanAudio.onended = () => {
+            dom.previewAzanBtn.innerHTML = '<i class="ph ph-play"></i>';
+            isPreviewing = false;
+        };
     });
 }
 
@@ -1054,6 +1092,7 @@ if (closeQiblaBtn) {
 
 const notificationBtn = document.getElementById('notification-btn');
 const azanAudio = document.getElementById('azan-audio');
+if (azanAudio) azanAudio.src = state.settings.azanSound;
 let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
 
 // Update Notification Icon State
