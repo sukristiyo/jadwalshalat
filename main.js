@@ -728,7 +728,7 @@ async function fetchSurahList() {
     if (!quranListEl) return; // Prevent crash if element missing
 
     try {
-        const res = await fetch('http://api.alquran.cloud/v1/surah');
+        const res = await fetch('https://api.alquran.cloud/v1/surah');
         const data = await res.json();
         
         if (data.code === 200) {
@@ -799,10 +799,10 @@ window.openSurahDetail = async function(number) {
     
     try {
         const [arabicRes, transRes, audioRes, latinRes] = await Promise.all([
-            fetch(`http://api.alquran.cloud/v1/surah/${number}`),
-            fetch(`http://api.alquran.cloud/v1/surah/${number}/id.indonesian`),
-            fetch(`http://api.alquran.cloud/v1/surah/${number}/ar.alafasy`),
-            fetch(`http://api.alquran.cloud/v1/surah/${number}/en.transliteration`)
+            fetch(`https://api.alquran.cloud/v1/surah/${number}`),
+            fetch(`https://api.alquran.cloud/v1/surah/${number}/id.indonesian`),
+            fetch(`https://api.alquran.cloud/v1/surah/${number}/ar.alafasy`),
+            fetch(`https://api.alquran.cloud/v1/surah/${number}/en.transliteration`)
         ]);
 
         const arabicData = await arabicRes.json();
