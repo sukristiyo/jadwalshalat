@@ -62,7 +62,7 @@ Jadwal Shalat PWA adalah aplikasi web progresif yang dirancang untuk membantu um
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/jadwalshalat.git
+git clone https://github.com/sukristiyo/shalatku.git
 cd jadwalshalat
 
 # Install dependencies
@@ -257,7 +257,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Sukristiyo**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: https://github.com/sukristiyo
 - Email: sukrisstiyo29@gmail.com
 
 ---
@@ -275,8 +275,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 📞 Support
 
 Jika Anda menemukan bug atau punya pertanyaan:
-- 🐛 [Report Bug](https://github.com/yourusername/jadwalshalat/issues)
-- 💡 [Request Feature](https://github.com/yourusername/jadwalshalat/issues)
+- 🐛 [Report Bug](https://github.com/sukristiyo/jadwalshalat/issues)
+- 💡 [Request Feature](https://github.com/sukristiyo/jadwalshalat/issues)
 - 📧 Email: sukrisstiyo29@gmail.com
 
 ---
@@ -291,6 +291,6 @@ Jika project ini bermanfaat, berikan ⭐ di GitHub!
 
 **Made with ❤️ by Sukristiyo**
 
-*Semoga bermanfaat untuk ibadah kita semua* 🤲
+*Semoga bermanfaat untuk kita semua* 🤲
 
 </div>
