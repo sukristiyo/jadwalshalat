@@ -1,7 +1,7 @@
 {
   "name": "Jadwal Shalat",
   "short_name": "Jadwal Shalat",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#008B4B",
