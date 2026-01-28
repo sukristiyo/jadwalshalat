@@ -118,7 +118,7 @@
                     </div>
                     <img src="icon_quran.png" alt="Quran" class="feature-img">
                 </div>
-                <div class="feature-card" onclick="window.open('https://qiblafinder.withgoogle.com', '_blank')">
+                <div class="feature-card" onclick="openQiblaModal()">
                     <div class="feature-text">
                         <h3 data-i18n="btn_qibla">Arah Kiblat</h3>
                         <p data-i18n="btn_qibla_desc">Cari Arah Kiblat</p>
@@ -200,6 +200,43 @@
             </div>
         </div>
 
+        <!-- Qibla Modal -->
+        <div id="qibla-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 data-i18n="btn_qibla">Arah Kiblat</h2>
+                    <button id="close-qibla" class="close-modal-btn"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="modal-body" style="text-align: center;">
+                    <div class="qibla-compass-container">
+                        <div id="compass-arrow" class="compass-arrow">
+                            <!-- Ka'bah Icon -->
+                            <div style="font-size: 40px;">🕋</div>
+                            <div class="arrow-pointer"></div>
+                        </div>
+                        <div class="compass-ring"></div>
+                    </div>
+                    
+                    <div id="qibla-info-container" style="margin-top: 24px;">
+                        <p id="qibla-status" style="color: var(--text-muted); margin-bottom: 8px;">Arahkan HP sejajar tanah</p>
+                        <div style="display: flex; justify-content: center; align-items: baseline; gap: 8px;">
+                            <span id="qibla-degree" style="font-weight: 800; font-size: 32px; color: var(--primary);">--°</span>
+                            <span style="color: var(--text-muted);">ke Mekkah</span>
+                        </div>
+                    </div>
+                    
+                    <button id="ios-permission-btn" class="btn-primary hidden" style="margin-top: 20px;">
+                        Izinkan Kompas (iOS)
+                    </button>
+                    
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 32px; opacity: 0.7;">
+                        *Pastikan GPS aktif & kalibrasi kompas HP Anda.
+                        <br>Tidak akurat di Laptop/PC.
+                    </p>
+                </div>
+            </div>
+        </div>
+
 
 
         <!-- Quran Detail Modal -->
@@ -226,6 +263,13 @@
         <!-- App Footer -->
         <footer class="app-footer">
             <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://instagram.com/sukrisstiyo" target="_blank" class="social-icon" aria-label="Instagram"><i class="ph ph-instagram-logo"></i></a>
+                    <a href="https://github.com/sukristiyo" target="_blank" class="social-icon" aria-label="GitHub"><i class="ph ph-github-logo"></i></a>
+                    <a href="https://www.facebook.com/sukrisstiyo/" target="_blank" class="social-icon" aria-label="Facebook"><i class="ph ph-facebook-logo"></i></a>
+                    <a href="https://linkedin.com/in/sukristiyo" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
+                    <a href="mailto:sukrisstiyo29@gmail.com" class="social-icon" aria-label="Email"><i class="ph ph-envelope"></i></a>
+                </div>
                 <p>Created with <i class="ph-fill ph-heart heart-pulse"></i> by <span class="creator-name">Sukristiyo</span></p>
                 <p class="copyright">&copy; 2026 Jadwal Shalat App</p>
             </div>

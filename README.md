@@ -42,12 +42,12 @@ Jadwal Shalat PWA adalah aplikasi web progresif yang dirancang untuk membantu um
 - **Cache 30 Menit** untuk efisiensi API usage
 - **Bahasa Indonesia** untuk deskripsi cuaca
 
-#### 🧭 Additional Features
-- **Arah Kiblat** - Integrasi dengan Google Qibla Finder
-- **Bilingual** - Toggle antara Indonesia & English
-- **Dark Mode** - Theme gelap yang nyaman di mata
-- **Responsive Design** - Optimal di semua ukuran layar
-- **PWA Support** - Install sebagai aplikasi native
+#### 🧭 Kompas Kiblat (In-App)
+- **Kompas Real-time** menggunakan sensor magnetometer HP
+- **Animasi Jarum** menunjuk ke Ka'bah (Mekkah)
+- **Akurasi Tinggi** dengan perhitungan Haversine Formula
+- **Tanpa Redirect** - Langsung di dalam aplikasi
+- **iOS Support** dengan handler izin akses sensor
 
 ---
 
