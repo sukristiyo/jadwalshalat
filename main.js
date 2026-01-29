@@ -120,6 +120,10 @@ const dom = {
     azanSelect: document.getElementById('azan-sound-select'),
     previewAzanBtn: document.getElementById('preview-azan-btn'),
     
+    // Monthly Filters
+    monthFilter: document.getElementById('month-filter'),
+    yearFilter: document.getElementById('year-filter'),
+    
     // Wide Toggles
     toggleBtn: document.getElementById('lang-toggle-btn'),
     labelId: document.getElementById('label-id'),
@@ -455,14 +459,14 @@ function renderUI(data) {
     dom.prayerList.innerHTML = html;
 }
 
-async function fetchMonthlyPrayers(lat, lng) {
+async function fetchMonthlyPrayers(lat, lng, month = null, year = null) {
     const date = new Date();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
+    const queryMonth = month || (date.getMonth() + 1);
+    const queryYear = year || date.getFullYear();
     const method = state.settings.method;
 
     try {
-        const url = `${API_BASE}/calendar?latitude=${lat}&longitude=${lng}&method=${method}&month=${month}&year=${year}`;
+        const url = `${API_BASE}/calendar?latitude=${lat}&longitude=${lng}&method=${method}&month=${queryMonth}&year=${queryYear}`;
         const response = await fetch(url);
         const data = await response.json();
         
@@ -476,31 +480,35 @@ async function fetchMonthlyPrayers(lat, lng) {
     }
 }
 
-function renderMonthlyTable(monthlyData) {
+function renderMonthlyTable(monthlyData, selectedMonth = null, selectedYear = null) {
     if (!monthlyData) return;
 
     const tbody = document.getElementById('monthly-tbody');
     const title = document.getElementById('month-year-title');
     
-    // Guard: if elements not found, return early
-    if (!tbody || !title) {
-        console.warn('Monthly table elements not found');
-        return;
-    }
+    if (!tbody || !title) return;
     
     const today = new Date();
     const currentDay = today.getDate();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
     
-    // Set Title: "Januari 2026"
-    const monthName = today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    title.innerText = monthName;
+    // Build a date object for the selected month/year to get its name
+    const displayMonth = selectedMonth || (today.getMonth() + 1);
+    const displayYear = selectedYear || today.getFullYear();
+    
+    const tempDate = new Date(displayYear, displayMonth - 1, 1);
+    const monthName = tempDate.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long' });
+    
+    title.innerText = `${monthName} ${displayYear}`;
 
     let html = '';
     
     monthlyData.forEach(dayData => {
-        // dayData.date.gregorian.day usually returns "01", "02" string
         const dayNum = parseInt(dayData.date.gregorian.day);
-        const isActive = dayNum === currentDay;
+        
+        // Only active if it's CURRENT day AND matching month/year
+        const isActive = (dayNum === currentDay && displayMonth == currentMonth && displayYear == currentYear);
         const activeClass = isActive ? 'active-row' : '';
         const timings = dayData.timings;
 
@@ -517,11 +525,6 @@ function renderMonthlyTable(monthlyData) {
     });
 
     tbody.innerHTML = html;
-    
-    // Auto scroll to active row if needed (optional)
-    if (document.querySelector('.active-row')) {
-        // Only if we want to auto-scroll, but maybe simpler is better
-    }
 }
 
 // --- Geolocation & Search ---
@@ -642,11 +645,13 @@ async function loadData() {
     console.log("Loading Data...");
     dom.prayerList.innerHTML = '<div class="loading-state"><i class="ph ph-spinner ph-spin"></i><p>Memuat Jadwal...</p></div>';
     
-    // Parallel Fetch: Prayer, Monthly, and Weather
     try {
+        const currentMonth = dom.monthFilter ? dom.monthFilter.value : null;
+        const currentYear = dom.yearFilter ? dom.yearFilter.value : null;
+
         const [dailyData, monthlyData, weatherData] = await Promise.all([
             fetchPrayers(state.location.lat, state.location.lng),
-            fetchMonthlyPrayers(state.location.lat, state.location.lng),
+            fetchMonthlyPrayers(state.location.lat, state.location.lng, currentMonth, currentYear),
             fetchWeatherData(state.location.lat, state.location.lng)
         ]);
 
@@ -660,10 +665,9 @@ async function loadData() {
         }
 
         if(monthlyData) {
-            renderMonthlyTable(monthlyData);
+            renderMonthlyTable(monthlyData, currentMonth, currentYear);
         }
         
-        // Render Weather Card
         if(weatherData) {
             renderWeatherCard(weatherData);
         }
@@ -1186,3 +1190,43 @@ function triggerAdhan(prayerName) {
 // Since `startCountdown` logic is inside a closure in main.js, we can't easily hook it without modifying `startCountdown` function itself.
 
 // Let's MODIFY startCountdown function to include triggerAdhan.
+
+// --- Filter Initializer ---
+function initFilters() {
+    if (!dom.monthFilter || !dom.yearFilter) return;
+
+    const date = new Date();
+    dom.monthFilter.value = date.getMonth() + 1;
+    
+    // Set Year Range (2024 to 2030)
+    let yearHtml = '';
+    for (let y = 2024; y <= 2030; y++) {
+        yearHtml += `<option value="${y}">${y}</option>`;
+    }
+    dom.yearFilter.innerHTML = yearHtml;
+    dom.yearFilter.value = date.getFullYear();
+
+    // Event Listeners
+    dom.monthFilter.addEventListener('change', () => {
+        updateMonthlyDataOnly();
+    });
+    dom.yearFilter.addEventListener('change', () => {
+        updateMonthlyDataOnly();
+    });
+}
+
+async function updateMonthlyDataOnly() {
+    const title = document.getElementById('month-year-title');
+    const tbody = document.getElementById('monthly-tbody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center;"><i class="ph ph-spinner ph-spin" style="font-size: 24px;"></i></td></tr>';
+    
+    const m = dom.monthFilter.value;
+    const y = dom.yearFilter.value;
+    
+    const monthlyData = await fetchMonthlyPrayers(state.location.lat, state.location.lng, m, y);
+    if (monthlyData) {
+        renderMonthlyTable(monthlyData, m, y);
+    }
+}
+
+initFilters();

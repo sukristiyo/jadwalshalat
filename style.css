@@ -1272,6 +1272,66 @@ select:focus, input[type="text"]:focus {
 .social-icon:nth-child(4):hover { background: #0A66C2; } /* LinkedIn */
 .social-icon:nth-child(5):hover { background: #EA4335; } /* Email */
 
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.schedule-filters {
+    display: flex;
+    gap: 12px;
+}
+
+.filter-select {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236B7280' viewBox='0 0 256 256'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-select:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 168, 89, 0.1);
+}
+
+.filter-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.2);
+}
+
+@media (max-width: 600px) {
+    .section-header-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .schedule-filters {
+        width: 100%;
+    }
+    
+    .filter-select {
+        flex: 1;
+    }
+}
+
 .heart-pulse {
     color: #EF4444; /* Red Heart */
     display: inline-block;
