@@ -293,9 +293,26 @@
                         <h2 id="quran-title-modal">Nama Surah</h2>
                     </div>
                     <div class="header-right">
-                        <div class="display-toggles">
-                            <button id="toggle-latin" class="toggle-chip active">Latin</button>
-                            <button id="toggle-translation" class="toggle-chip active">Arti</button>
+                        <div class="appearance-container">
+                            <button id="quran-appearance-btn" class="icon-btn" title="Pengaturan Tampilan">
+                                <i class="ph ph-sliders"></i>
+                            </button>
+                            <div id="appearance-popover" class="appearance-popover hidden">
+                                <div class="popover-item">
+                                    <span>Latin</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-latin-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="popover-item">
+                                    <span>Terjemahan</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-translation-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <button id="play-quran-btn" class="icon-btn highlight"><i class="ph-fill ph-play-circle"></i> <span data-i18n="play_audio">Putar Audio</span></button>
                     </div>

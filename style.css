@@ -1478,36 +1478,102 @@ select:focus, input[type="text"]:focus {
     color: white;
 }
 
-/* --- Quran Display Toggles --- */
-.display-toggles {
-    display: flex;
-    gap: 8px;
-    margin-right: 12px;
+/* --- Quran Display Toggles (Popover Style) --- */
+.appearance-container {
+    position: relative;
+    display: inline-block;
 }
 
-.toggle-chip {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+.appearance-popover {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 200px;
     background: var(--bg-card);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--border-color);
-    color: var(--text-muted);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 110;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    outline: none;
+    transform-origin: top right;
 }
 
-.toggle-chip.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    box-shadow: 0 4px 10px rgba(0, 168, 89, 0.2);
+.appearance-popover.hidden {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+    pointer-events: none;
+    display: block !important; /* Keep in DOM for transition */
 }
 
-.toggle-chip:hover {
-    transform: translateY(-2px);
-    border-color: var(--primary);
+.popover-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.popover-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color);
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 
 /* Conditional visibility based on parent class */
@@ -1520,13 +1586,9 @@ select:focus, input[type="text"]:focus {
 }
 
 @media (max-width: 600px) {
-    .display-toggles {
-        gap: 4px;
-        margin-right: 6px;
-    }
-    
-    .toggle-chip {
-        padding: 4px 12px;
-        font-size: 12px;
+    .appearance-popover {
+        width: 180px;
+        right: -10px; /* Slight offset for mobile */
     }
 }
+

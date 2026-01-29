@@ -134,8 +134,10 @@ const dom = {
     labelDark: document.getElementById('label-dark'),
 
     // Quran Toggles
-    toggleLatinBtn: document.getElementById('toggle-latin'),
-    toggleTransBtn: document.getElementById('toggle-translation'),
+    appearanceBtn: document.getElementById('quran-appearance-btn'),
+    appearancePopover: document.getElementById('appearance-popover'),
+    latinSwitch: document.getElementById('toggle-latin-switch'),
+    transSwitch: document.getElementById('toggle-translation-switch'),
     quranDetailList: document.getElementById('quran-detail-list')
 };
 
@@ -1206,32 +1208,47 @@ function updateQuranDisplay() {
     
     if (showLatin) {
         list.classList.remove('hide-latin');
-        if (dom.toggleLatinBtn) dom.toggleLatinBtn.classList.add('active');
+        if (dom.latinSwitch) dom.latinSwitch.checked = true;
     } else {
         list.classList.add('hide-latin');
-        if (dom.toggleLatinBtn) dom.toggleLatinBtn.classList.remove('active');
+        if (dom.latinSwitch) dom.latinSwitch.checked = false;
     }
     
     if (showTrans) {
         list.classList.remove('hide-translation');
-        if (dom.toggleTransBtn) dom.toggleTransBtn.classList.add('active');
+        if (dom.transSwitch) dom.transSwitch.checked = true;
     } else {
         list.classList.add('hide-translation');
-        if (dom.toggleTransBtn) dom.toggleTransBtn.classList.remove('active');
+        if (dom.transSwitch) dom.transSwitch.checked = false;
     }
 }
 
-if (dom.toggleLatinBtn) {
-    dom.toggleLatinBtn.addEventListener('click', () => {
-        showLatin = !showLatin;
+// Popover Toggle
+if (dom.appearanceBtn && dom.appearancePopover) {
+    dom.appearanceBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dom.appearancePopover.classList.toggle('hidden');
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+        if (!dom.appearancePopover.contains(e.target) && !dom.appearanceBtn.contains(e.target)) {
+            dom.appearancePopover.classList.add('hidden');
+        }
+    });
+}
+
+if (dom.latinSwitch) {
+    dom.latinSwitch.addEventListener('change', () => {
+        showLatin = dom.latinSwitch.checked;
         localStorage.setItem('quranShowLatin', showLatin);
         updateQuranDisplay();
     });
 }
 
-if (dom.toggleTransBtn) {
-    dom.toggleTransBtn.addEventListener('click', () => {
-        showTrans = !showTrans;
+if (dom.transSwitch) {
+    dom.transSwitch.addEventListener('change', () => {
+        showTrans = dom.transSwitch.checked;
         localStorage.setItem('quranShowTrans', showTrans);
         updateQuranDisplay();
     });
