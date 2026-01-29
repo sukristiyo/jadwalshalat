@@ -131,7 +131,12 @@ const dom = {
     
     themeBtn: document.getElementById('theme-toggle-btn'),
     labelLight: document.getElementById('label-light'),
-    labelDark: document.getElementById('label-dark')
+    labelDark: document.getElementById('label-dark'),
+
+    // Quran Toggles
+    toggleLatinBtn: document.getElementById('toggle-latin'),
+    toggleTransBtn: document.getElementById('toggle-translation'),
+    quranDetailList: document.getElementById('quran-detail-list')
 };
 
 function initTheme() {
@@ -846,8 +851,8 @@ window.openSurahDetail = async function(number) {
         return;
     }
 
-    modal.classList.remove('hidden');
     modal.classList.add('active');
+    updateQuranDisplay(); // Ensure settings applied
     content.innerHTML = '<div class="loading-state"><i class="ph ph-spinner ph-spin"></i> Memuat Ayat...</div>';
     
     try {
@@ -1190,6 +1195,50 @@ function triggerAdhan(prayerName) {
 // Since `startCountdown` logic is inside a closure in main.js, we can't easily hook it without modifying `startCountdown` function itself.
 
 // Let's MODIFY startCountdown function to include triggerAdhan.
+
+// --- Quran Toggle Logic ---
+let showLatin = localStorage.getItem('quranShowLatin') !== 'false';
+let showTrans = localStorage.getItem('quranShowTrans') !== 'false';
+
+function updateQuranDisplay() {
+    const list = document.getElementById('quran-detail-list');
+    if (!list) return;
+    
+    if (showLatin) {
+        list.classList.remove('hide-latin');
+        if (dom.toggleLatinBtn) dom.toggleLatinBtn.classList.add('active');
+    } else {
+        list.classList.add('hide-latin');
+        if (dom.toggleLatinBtn) dom.toggleLatinBtn.classList.remove('active');
+    }
+    
+    if (showTrans) {
+        list.classList.remove('hide-translation');
+        if (dom.toggleTransBtn) dom.toggleTransBtn.classList.add('active');
+    } else {
+        list.classList.add('hide-translation');
+        if (dom.toggleTransBtn) dom.toggleTransBtn.classList.remove('active');
+    }
+}
+
+if (dom.toggleLatinBtn) {
+    dom.toggleLatinBtn.addEventListener('click', () => {
+        showLatin = !showLatin;
+        localStorage.setItem('quranShowLatin', showLatin);
+        updateQuranDisplay();
+    });
+}
+
+if (dom.toggleTransBtn) {
+    dom.toggleTransBtn.addEventListener('click', () => {
+        showTrans = !showTrans;
+        localStorage.setItem('quranShowTrans', showTrans);
+        updateQuranDisplay();
+    });
+}
+
+// Ensure initial state set on modal trigger
+updateQuranDisplay();
 
 // --- Filter Initializer ---
 function initFilters() {

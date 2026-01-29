@@ -1477,3 +1477,56 @@ select:focus, input[type="text"]:focus {
 .notification-toggle.active:hover {
     color: white;
 }
+
+/* --- Quran Display Toggles --- */
+.display-toggles {
+    display: flex;
+    gap: 8px;
+    margin-right: 12px;
+}
+
+.toggle-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.toggle-chip.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0, 168, 89, 0.2);
+}
+
+.toggle-chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+}
+
+/* Conditional visibility based on parent class */
+#quran-detail-list.hide-latin .ayah-latin {
+    display: none;
+}
+
+#quran-detail-list.hide-translation .ayah-translation {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .display-toggles {
+        gap: 4px;
+        margin-right: 6px;
+    }
+    
+    .toggle-chip {
+        padding: 4px 12px;
+        font-size: 12px;
+    }
+}
