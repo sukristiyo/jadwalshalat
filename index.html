@@ -293,28 +293,26 @@
                         <h2 id="quran-title-modal">Nama Surah</h2>
                     </div>
                     <div class="header-right">
-                        <div class="appearance-container">
-                            <button id="quran-appearance-btn" class="icon-btn" title="Pengaturan Tampilan">
-                                <i class="ph ph-sliders"></i>
+                        <div class="quran-controls">
+                            <label class="inline-toggle" title="Tampilkan Latin">
+                                <span>Latin</span>
+                                <div class="switch-container">
+                                    <input type="checkbox" id="toggle-latin-switch">
+                                    <span class="slider round"></span>
+                                </div>
+                            </label>
+                            <label class="inline-toggle" title="Tampilkan Terjemahan">
+                                <span>Terjemah</span>
+                                <div class="switch-container">
+                                    <input type="checkbox" id="toggle-translation-switch">
+                                    <span class="slider round"></span>
+                                </div>
+                            </label>
+                            <button id="play-quran-btn" class="icon-btn highlight">
+                                <i class="ph-fill ph-play-circle"></i> 
+                                <span class="btn-text" data-i18n="play_audio">Putar Audio</span>
                             </button>
-                            <div id="appearance-popover" class="appearance-popover hidden">
-                                <div class="popover-item">
-                                    <span>Latin</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-latin-switch">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div class="popover-item">
-                                    <span>Terjemahan</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-translation-switch">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
                         </div>
-                        <button id="play-quran-btn" class="icon-btn highlight"><i class="ph-fill ph-play-circle"></i> <span data-i18n="play_audio">Putar Audio</span></button>
                     </div>
                 </div>
                 <!-- Audio Player (Hidden initially) -->

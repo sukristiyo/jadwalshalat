@@ -134,8 +134,7 @@ const dom = {
     labelDark: document.getElementById('label-dark'),
 
     // Quran Toggles
-    appearanceBtn: document.getElementById('quran-appearance-btn'),
-    appearancePopover: document.getElementById('appearance-popover'),
+
     latinSwitch: document.getElementById('toggle-latin-switch'),
     transSwitch: document.getElementById('toggle-translation-switch'),
     quranDetailList: document.getElementById('quran-detail-list')
@@ -807,25 +806,38 @@ function renderSurahList(surahs) {
     const quranListEl = document.getElementById('quran-list');
     if (!quranListEl) return;
     
+    // Clear current content
+    quranListEl.innerHTML = '';
+    
     if (surahs.length === 0) {
         quranListEl.innerHTML = '<p>Surat tidak ditemukan.</p>';
         return;
     }
 
-    let html = '';
+    const fragment = document.createDocumentFragment();
+
     surahs.forEach(surah => {
-        html += `
-        <div class="quran-card" onclick="openSurahDetail(${surah.number})">
+        const card = document.createElement('div');
+        card.className = 'quran-card';
+        
+        // Attach event listener directly
+        card.addEventListener('click', () => {
+            openSurahDetail(surah.number);
+        });
+
+        card.innerHTML = `
             <div class="surah-number">${surah.number}</div>
             <div>
                 <div class="surah-name-latin">${surah.englishName}</div>
                 <div class="surah-info">${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayat</div>
             </div>
             <div class="surah-name-arabic">${surah.name}</div>
-        </div>
         `;
+        
+        fragment.appendChild(card);
     });
-    quranListEl.innerHTML = html;
+
+    quranListEl.appendChild(fragment);
 }
 
 // Search Logic
@@ -853,7 +865,11 @@ window.openSurahDetail = async function(number) {
         return;
     }
 
-    modal.classList.add('active');
+    modal.classList.remove('hidden');
+    // Small delay to allow display:block to apply before opacity transition
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
     updateQuranDisplay(); // Ensure settings applied
     content.innerHTML = '<div class="loading-state"><i class="ph ph-spinner ph-spin"></i> Memuat Ayat...</div>';
     
@@ -1224,19 +1240,7 @@ function updateQuranDisplay() {
 }
 
 // Popover Toggle
-if (dom.appearanceBtn && dom.appearancePopover) {
-    dom.appearanceBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dom.appearancePopover.classList.toggle('hidden');
-    });
 
-    // Close on click outside
-    document.addEventListener('click', (e) => {
-        if (!dom.appearancePopover.contains(e.target) && !dom.appearanceBtn.contains(e.target)) {
-            dom.appearancePopover.classList.add('hidden');
-        }
-    });
-}
 
 if (dom.latinSwitch) {
     dom.latinSwitch.addEventListener('change', () => {

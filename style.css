@@ -1344,6 +1344,7 @@ select:focus, input[type="text"]:focus {
     font-weight: 800;
     background: var(--primary-gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     cursor: pointer;
     position: relative;
@@ -1478,57 +1479,32 @@ select:focus, input[type="text"]:focus {
     color: white;
 }
 
-/* --- Quran Display Toggles (Popover Style) --- */
-.appearance-container {
-    position: relative;
-    display: inline-block;
-}
-
-.appearance-popover {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    width: 200px;
-    background: var(--bg-card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    z-index: 110;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: top right;
-}
-
-.appearance-popover.hidden {
-    opacity: 0;
-    transform: scale(0.9) translateY(-10px);
-    pointer-events: none;
-    display: block !important; /* Keep in DOM for transition */
-}
-
-.popover-item {
+/* --- Quran Header Controls (Inline) --- */
+.quran-controls {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    color: var(--text-main);
-    font-weight: 600;
+    gap: 20px;
 }
 
-.popover-item:not(:last-child) {
-    border-bottom: 1px solid var(--border-color);
+.inline-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
 }
 
 /* Toggle Switch Styles */
-.switch {
+.switch-container {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 40px; /* Slightly smaller */
+  height: 22px;
 }
 
-.switch input {
+.switch-container input {
   opacity: 0;
   width: 0;
   height: 0;
@@ -1548,8 +1524,8 @@ select:focus, input[type="text"]:focus {
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  height: 16px;
+  width: 16px;
   left: 3px;
   bottom: 3px;
   background-color: white;
@@ -1565,7 +1541,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
 .slider.round {
@@ -1576,6 +1552,27 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+/* Hide text labels on small mobile but keep toggles */
+@media (max-width: 480px) {
+    .quran-controls {
+        gap: 12px;
+    }
+    .inline-toggle span:first-child {
+        display: none; /* Hide 'Latin' text */
+    }
+    
+    .btn-text {
+        display: none; /* Show only icon for play button on small screens */
+    }
+    
+    .icon-btn.highlight {
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+    }
+}
+
 /* Conditional visibility based on parent class */
 #quran-detail-list.hide-latin .ayah-latin {
     display: none;
@@ -1583,12 +1580,5 @@ input:checked + .slider:before {
 
 #quran-detail-list.hide-translation .ayah-translation {
     display: none;
-}
-
-@media (max-width: 600px) {
-    .appearance-popover {
-        width: 180px;
-        right: -10px; /* Slight offset for mobile */
-    }
 }
 

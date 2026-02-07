@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jadwal-shalat-v2';
+const CACHE_NAME = 'jadwal-shalat-v3';
 const ASSETS = [
   '/',
   '/index.html',
