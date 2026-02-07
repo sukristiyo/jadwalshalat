@@ -521,6 +521,7 @@ function renderMonthlyTable(monthlyData, selectedMonth = null, selectedYear = nu
         html += `
             <tr class="${activeClass}">
                 <td style="text-align:left; padding-left:24px;">${dayNum} ${monthName}</td>
+                <td>${formatTime(timings.Imsak)}</td>
                 <td>${formatTime(timings.Fajr)}</td>
                 <td>${formatTime(timings.Dhuhr)}</td>
                 <td>${formatTime(timings.Asr)}</td>
