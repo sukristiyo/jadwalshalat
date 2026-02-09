@@ -94,7 +94,16 @@ const state = {
     prayers: null,
     nextPrayer: null,
     lang: localStorage.getItem('appLang') || 'id',
-    theme: localStorage.getItem('appTheme') || 'light'
+    theme: localStorage.getItem('appTheme') || 'light',
+    adzanEnabled: localStorage.getItem('adzanEnabled') !== 'false', // Default true
+    preReminder: parseInt(localStorage.getItem('preReminder') || '0'), // Default 0 (off)
+    quranSettings: {
+        showLatin: localStorage.getItem('quranShowLatin') !== 'false',
+        showTranslation: localStorage.getItem('quranShowTrans') !== 'false',
+        modePage: localStorage.getItem('quranModePage') === 'true',
+        qori: localStorage.getItem('quranQori') || 'ar.alafasy'
+    },
+    currentSurah: null
 };
 
 // --- DOM Elements ---
@@ -137,8 +146,118 @@ const dom = {
 
     latinSwitch: document.getElementById('toggle-latin-switch'),
     transSwitch: document.getElementById('toggle-translation-switch'),
-    quranDetailList: document.getElementById('quran-detail-list')
+    quranDetailList: document.getElementById('quran-detail-list'),
+    
+    // Adzan
+    adzanAudio: document.getElementById('adzan-audio'),
+    adzanToggle: document.getElementById('adzan-toggle'),
+    preReminderSelect: document.getElementById('pre-reminder-select'),
+
+    // Quran Redesign
+    quranSettingsBtn: document.getElementById('quran-settings-btn'),
+    quranSettingsPopover: document.getElementById('quran-settings-popover'),
+    closeQuranSettingsBtn: document.getElementById('close-quran-settings'),
+    
+    // Toggles (New IDs)
+    latinSwitch: document.getElementById('toggle-latin-switch'),
+    transSwitch: document.getElementById('toggle-translation-switch'),
+    pageModeSwitch: document.getElementById('toggle-page-mode-switch'),
+    
+    qoriSelect: document.getElementById('qori-select'),
+    
+    // Header Nav
+    prevSurahBtn: document.getElementById('prev-surah-btn'),
+    nextSurahBtn: document.getElementById('next-surah-btn')
 };
+
+// ... (initTheme remains)
+
+// --- Quran Settings Logic ---
+function initQuranSettings() {
+    // Popover Toggles
+    if (dom.quranSettingsBtn && dom.quranSettingsPopover) {
+        // Remove old listeners to avoid duplicates (cleaner: use named function or check)
+        // For now, simpler to clone node to strip listeners if we re-run this often
+        // but initQuranSettings is likely called once or idempotent checks needed.
+        
+        dom.quranSettingsBtn.onclick = (e) => {
+            e.stopPropagation();
+            dom.quranSettingsPopover.classList.toggle('hidden');
+        };
+        
+        // click outside to close
+        document.addEventListener('click', (e) => {
+             if (!dom.quranSettingsPopover.contains(e.target) && !dom.quranSettingsBtn.contains(e.target)) {
+                 dom.quranSettingsPopover.classList.add('hidden');
+             }
+        });
+
+        if (dom.closeQuranSettingsBtn) {
+            dom.closeQuranSettingsBtn.onclick = () => {
+                dom.quranSettingsPopover.classList.add('hidden');
+            };
+        }
+    }
+
+    // Toggles
+    if (dom.latinSwitch) {
+        dom.latinSwitch.checked = state.quranSettings.showLatin;
+        dom.latinSwitch.onchange = () => {
+            state.quranSettings.showLatin = dom.latinSwitch.checked;
+            localStorage.setItem('quranShowLatin', state.quranSettings.showLatin);
+            updateQuranDisplay();
+        };
+    }
+
+    if (dom.transSwitch) {
+        dom.transSwitch.checked = state.quranSettings.showTranslation;
+        dom.transSwitch.onchange = () => {
+            state.quranSettings.showTranslation = dom.transSwitch.checked;
+            localStorage.setItem('quranShowTrans', state.quranSettings.showTranslation);
+            updateQuranDisplay();
+        };
+    }
+
+    if (dom.pageModeSwitch) {
+        dom.pageModeSwitch.checked = state.quranSettings.modePage;
+        dom.pageModeSwitch.onchange = () => {
+            state.quranSettings.modePage = dom.pageModeSwitch.checked;
+            localStorage.setItem('quranModePage', state.quranSettings.modePage);
+            updateQuranDisplay();
+        };
+    }
+
+    if (dom.qoriSelect) {
+        dom.qoriSelect.value = state.quranSettings.qori || 'ar.alafasy';
+        dom.qoriSelect.onchange = () => {
+             state.quranSettings.qori = dom.qoriSelect.value;
+             localStorage.setItem('quranQori', state.quranSettings.qori);
+             if (state.currentSurah) {
+                 openSurahDetail(state.currentSurah);
+             }
+        };
+    }
+
+    // Nav Buttons Logic - Handled in openSurahDetail for dynamic text, 
+    // but click handlers can be here or updated there.
+    // Let's keep generic click handlers here that read state.
+    
+    if (dom.prevSurahBtn) {
+        dom.prevSurahBtn.onclick = () => {
+            if (state.currentSurah && state.currentSurah > 1) {
+                openSurahDetail(state.currentSurah - 1);
+            }
+        };
+    }
+
+    if (dom.nextSurahBtn) {
+        dom.nextSurahBtn.onclick = () => {
+             if (state.currentSurah && state.currentSurah < 114) {
+                 openSurahDetail(state.currentSurah + 1);
+             }
+        };
+    }
+}
 
 function initTheme() {
     const theme = state.theme;
@@ -403,6 +522,17 @@ function startCountdown(targetTimeStr, isTomorrow = false) {
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
         dom.countdown.innerText = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+
+        // Pre-Reminder Check (Exact minute match, e.g. 5:00)
+        if (state.preReminder > 0 && state.nextPrayer) {
+            const totalSeconds = Math.floor(diff / 1000);
+            const reminderSeconds = state.preReminder * 60;
+            
+            // Trigger 1 second window to avoid multiple alerts
+            if (totalSeconds === reminderSeconds) {
+                triggerPreReminder(state.nextPrayer.name);
+            }
+        }
     }
     
     window.timerInterval = setInterval(update, 1000);
@@ -855,37 +985,79 @@ if (quranSearchInput) {
 }
 
 // Detail & Audio Logic
+// Detail & Audio Logic
 window.openSurahDetail = async function(number) {
+    state.currentSurah = number;
     const modal = document.getElementById('quran-modal');
     const content = document.getElementById('quran-detail-list');
     const title = document.getElementById('quran-title-modal');
-    const playBtn = document.getElementById('play-quran-btn');
+    const subtitle = document.getElementById('quran-surah-info');
     
-    if (!modal || !content) {
-        console.error("Quran modal elements missing");
-        return;
-    }
+    // Init settings logic if not already (or ensure listeners are active)
+    initQuranSettings();
+
+    if (!modal || !content) return;
 
     modal.classList.remove('hidden');
-    // Small delay to allow display:block to apply before opacity transition
     requestAnimationFrame(() => {
         modal.classList.add('active');
     });
-    updateQuranDisplay(); // Ensure settings applied
+    updateQuranDisplay();
     content.innerHTML = '<div class="loading-state"><i class="ph ph-spinner ph-spin"></i> Memuat Ayat...</div>';
     
+    // Update Header Nav Buttons
+    if (allSurahs.length > 0) {
+        if (dom.prevSurahBtn) {
+            if (number > 1) {
+                const prev = allSurahs[number - 2];
+                dom.prevSurahBtn.innerHTML = `<i class="ph ph-caret-left"></i> <span class="desktop-only">${prev.englishName}</span>`;
+                dom.prevSurahBtn.disabled = false;
+                dom.prevSurahBtn.style.opacity = '1';
+            } else {
+                dom.prevSurahBtn.disabled = true;
+                dom.prevSurahBtn.style.opacity = '0.5';
+                dom.prevSurahBtn.innerHTML = `<i class="ph ph-caret-left"></i>`;
+            }
+        }
+        
+        if (dom.nextSurahBtn) {
+            if (number < 114) {
+                const next = allSurahs[number];
+                dom.nextSurahBtn.innerHTML = `<span class="desktop-only">${next.englishName}</span> <i class="ph ph-caret-right"></i>`;
+                dom.nextSurahBtn.disabled = false;
+                dom.nextSurahBtn.style.opacity = '1';
+            } else {
+                dom.nextSurahBtn.disabled = true;
+                dom.nextSurahBtn.style.opacity = '0.5';
+                dom.nextSurahBtn.innerHTML = `<i class="ph ph-caret-right"></i>`;
+            }
+        }
+    }
+    
     try {
-        const [arabicRes, transRes, audioRes, latinRes] = await Promise.all([
-            fetch(`https://api.alquran.cloud/v1/surah/${number}`),
-            fetch(`https://api.alquran.cloud/v1/surah/${number}/id.indonesian`),
-            fetch(`https://api.alquran.cloud/v1/surah/${number}/ar.alafasy`),
-            fetch(`https://api.alquran.cloud/v1/surah/${number}/en.transliteration`)
-        ]);
+        const qoriEdition = state.quranSettings.qori || 'ar.alafasy';
+        
+        let arabicData, transData, audioData, latinData;
 
-        const arabicData = await arabicRes.json();
-        const transData = await transRes.json();
-        const audioData = await audioRes.json();
-        const latinData = await latinRes.json();
+        try {
+            const [arabicRes, transRes, audioRes, latinRes] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${number}`),
+                fetch(`https://api.alquran.cloud/v1/surah/${number}/id.indonesian`),
+                fetch(`https://api.alquran.cloud/v1/surah/${number}/${qoriEdition}`),
+                fetch(`https://api.alquran.cloud/v1/surah/${number}/en.transliteration`)
+            ]);
+
+            console.log("Responses received:", { arabicRes, transRes, audioRes, latinRes });
+
+            arabicData = await arabicRes.json();
+            transData = await transRes.json();
+            audioData = await audioRes.json();
+            latinData = await latinRes.json();
+        
+        } catch (innerError) {
+             console.error("Inner Fetch Error:", innerError);
+             throw innerError;
+        }
 
         if (arabicData.code !== 200) throw new Error("API Error");
 
@@ -895,10 +1067,11 @@ window.openSurahDetail = async function(number) {
         const latin = latinData.data.ayahs;
 
         if (title) title.innerText = surah.englishName;
+        if (subtitle) subtitle.innerText = `${surah.revelationType} • ${surah.numberOfAyahs} Ayat`;
         
         let html = '';
-        if (number !== 9) {
-            html += `<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
+        if (number !== 9 && number !== 1) { // Skip bismillah for Al-Fatihah (already in ayah 1) and At-Taubah
+            html += `<div class="bismillah" style="text-align:center; margin-bottom:20px; font-family:'Amiri'; font-size:24px;">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
         }
 
         surah.ayahs.forEach((ayah, index) => {
@@ -907,47 +1080,70 @@ window.openSurahDetail = async function(number) {
             
             html += `
             <div class="ayah-item" id="ayah-${index}">
-                <div class="ayah-header">
-                    <span class="ayah-number">${surah.number}:${ayah.numberInSurah}</span>
+                <div class="ayah-sidebar">
+                    <div class="surah-number">${surah.number}:${ayah.numberInSurah}</div>
+                    <button class="action-btn play-ayah-btn" data-index="${index}">
+                        <i class="ph-fill ph-play"></i>
+                    </button>
+                    <button class="action-btn share-ayah-btn" data-index="${index}">
+                        <i class="ph ph-share-network"></i>
+                    </button>
                 </div>
-                <div class="ayah-arabic">${ayah.text}</div>
-                <div class="ayah-latin">${latinText}</div>
-                <div class="ayah-translation">${translationText}</div>
+                <div class="ayah-content">
+                    <div class="ayah-arabic">${ayah.text}</div>
+                    <div class="ayah-latin">${latinText}</div>
+                    <div class="ayah-translation">${translationText}</div>
+                </div>
             </div>
             `;
         });
         
         content.innerHTML = html;
         
+        // --- Audio Logic Redesigned ---
         const audioPlayer = document.getElementById('quran-audio-player');
-        if (!audioPlayer) return;
+        let currentPlayingIndex = -1;
 
-        let isPlaying = false;
-        audioPlayer.pause();
-        if (playBtn) playBtn.innerHTML = '<i class="ph-fill ph-play-circle"></i> Putar Audio';
-        
-        if (playBtn) {
-            playBtn.onclick = () => {
-                if (isPlaying) {
-                    audioPlayer.pause();
-                    isPlaying = false;
-                    playBtn.innerHTML = '<i class="ph-fill ph-play-circle"></i> Putar Audio';
-                    return;
+        // Attach Listeners
+        document.querySelectorAll('.play-ayah-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(btn.dataset.index);
+                if (currentPlayingIndex === index && !audioPlayer.paused) {
+                    pauseAudio();
+                } else {
+                    playAyah(index);
                 }
-                
-                isPlaying = true;
-                playBtn.innerHTML = '<i class="ph-fill ph-pause-circle"></i> Stop Audio';
-                playAyah(0);
-            };
+            });
+        });
+
+        function updatePlayIcons() {
+            document.querySelectorAll('.play-ayah-btn').forEach(btn => {
+                const idx = parseInt(btn.dataset.index);
+                if (idx === currentPlayingIndex && !audioPlayer.paused) {
+                    btn.innerHTML = '<i class="ph-fill ph-pause"></i>';
+                    btn.classList.add('active-play');
+                } else {
+                    btn.innerHTML = '<i class="ph-fill ph-play"></i>';
+                    btn.classList.remove('active-play');
+                }
+            });
+        }
+
+        function pauseAudio() {
+            audioPlayer.pause();
+            updatePlayIcons();
         }
 
         function playAyah(index) {
-            if (index >= audio.length || !isPlaying) {
-                isPlaying = false;
-                if (playBtn) playBtn.innerHTML = '<i class="ph-fill ph-play-circle"></i> Putar Audio';
+            if (index >= audio.length) {
+                currentPlayingIndex = -1;
+                updatePlayIcons();
                 return;
             }
 
+            currentPlayingIndex = index;
+            
+            // Highlight
             document.querySelectorAll('.ayah-item').forEach(el => el.classList.remove('playing-ayah'));
             const el = document.getElementById(`ayah-${index}`);
             if (el) {
@@ -956,18 +1152,46 @@ window.openSurahDetail = async function(number) {
             }
 
             audioPlayer.src = audio[index].audio;
-            audioPlayer.play();
+            audioPlayer.play().catch(e => console.log("Play error", e));
+            
+            updatePlayIcons();
             
             audioPlayer.onended = () => {
                 playAyah(index + 1);
             };
         }
-
+        
     } catch (e) {
         console.error(e);
         content.innerHTML = '<p class="error">Gagal memuat detail surat.</p>';
     }
 };
+
+// Update Display based on settings
+function updateQuranDisplay() {
+    const list = document.getElementById('quran-detail-list');
+    if (!list) return;
+    
+    // Toggles for Latin/Translation
+    if (state.quranSettings.showLatin) {
+        list.classList.remove('hide-latin');
+    } else {
+        list.classList.add('hide-latin');
+    }
+    
+    if (state.quranSettings.showTranslation) {
+        list.classList.remove('hide-translation');
+    } else {
+        list.classList.add('hide-translation');
+    }
+
+    // Page Mode logic (Visual only for now)
+    if (state.quranSettings.modePage) {
+        list.classList.add('quran-page-mode');
+    } else {
+        list.classList.remove('quran-page-mode');
+    }
+}
 
 const closeQuranBtn = document.getElementById('close-quran');
 if (closeQuranBtn) {
@@ -1176,33 +1400,7 @@ if (notificationBtn) {
 }
 
 // Function to Trigger Adhan (Call this when countdown reaches 0)
-function triggerAdhan(prayerName) {
-    if (!notificationEnabled) return;
-    
-    // 1. Play Audio
-    if (azanAudio) {
-        azanAudio.currentTime = 0;
-        azanAudio.play().catch(e => console.error("Audio Play Error:", e));
-    }
-    
-    // 2. Show Notification
-    if ("Notification" in window && Notification.permission === "granted") {
-        const notif = new Notification(`Waktunya Shalat ${prayerName}`, {
-            body: "Mari segerakan shalat.",
-            icon: '/icon_kaaba.png',
-            requireInteraction: true
-        });
-        
-        notif.onclick = function() {
-            window.focus();
-            if (azanAudio) {
-                azanAudio.pause();
-                azanAudio.currentTime = 0;
-            }
-            this.close();
-        };
-    }
-}
+
 
 // Hook into Countdown Logic (Overwrite/Extend timer check)
 // Since we used setInterval logic inside startCountdown, we need to inject this trigger there.
@@ -1216,51 +1414,7 @@ function triggerAdhan(prayerName) {
 // Let's MODIFY startCountdown function to include triggerAdhan.
 
 // --- Quran Toggle Logic ---
-let showLatin = localStorage.getItem('quranShowLatin') !== 'false';
-let showTrans = localStorage.getItem('quranShowTrans') !== 'false';
 
-function updateQuranDisplay() {
-    const list = document.getElementById('quran-detail-list');
-    if (!list) return;
-    
-    if (showLatin) {
-        list.classList.remove('hide-latin');
-        if (dom.latinSwitch) dom.latinSwitch.checked = true;
-    } else {
-        list.classList.add('hide-latin');
-        if (dom.latinSwitch) dom.latinSwitch.checked = false;
-    }
-    
-    if (showTrans) {
-        list.classList.remove('hide-translation');
-        if (dom.transSwitch) dom.transSwitch.checked = true;
-    } else {
-        list.classList.add('hide-translation');
-        if (dom.transSwitch) dom.transSwitch.checked = false;
-    }
-}
-
-// Popover Toggle
-
-
-if (dom.latinSwitch) {
-    dom.latinSwitch.addEventListener('change', () => {
-        showLatin = dom.latinSwitch.checked;
-        localStorage.setItem('quranShowLatin', showLatin);
-        updateQuranDisplay();
-    });
-}
-
-if (dom.transSwitch) {
-    dom.transSwitch.addEventListener('change', () => {
-        showTrans = dom.transSwitch.checked;
-        localStorage.setItem('quranShowTrans', showTrans);
-        updateQuranDisplay();
-    });
-}
-
-// Ensure initial state set on modal trigger
-updateQuranDisplay();
 
 // --- Filter Initializer ---
 function initFilters() {
@@ -1301,3 +1455,67 @@ async function updateMonthlyDataOnly() {
 }
 
 initFilters();
+
+// --- Adzan Logic ---
+function initAdzan() {
+    if (dom.adzanToggle) {
+        dom.adzanToggle.checked = state.adzanEnabled;
+        dom.adzanToggle.addEventListener('change', () => {
+             state.adzanEnabled = dom.adzanToggle.checked;
+             localStorage.setItem('adzanEnabled', state.adzanEnabled);
+             
+             // Unlock audio on interaction
+             if (state.adzanEnabled && dom.adzanAudio) {
+                 dom.adzanAudio.load(); 
+             }
+        });
+    }
+
+    // Pre-Reminder Listener
+    if (dom.preReminderSelect) {
+        dom.preReminderSelect.value = state.preReminder;
+        dom.preReminderSelect.addEventListener('change', () => {
+            state.preReminder = parseInt(dom.preReminderSelect.value);
+            localStorage.setItem('preReminder', state.preReminder);
+        });
+    }
+}
+
+function triggerPreReminder(prayerName) {
+    if (!state.preReminder || state.preReminder === 0) return;
+    
+    // Arabic Message: "The prayer is approaching, do not forget to remember Allah"
+    const msg = `اقتربت صلاة ${prayerName}، لا تنس ذكر الله`;
+    
+    if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Pengingat Shalat", {
+            body: msg,
+            icon: '/icon_kaaba.png' // Ensure this icon exists or remove
+        });
+    }
+}
+
+function triggerAdhan(prayerName) {
+    if (!state.adzanEnabled || !dom.adzanAudio) return;
+    
+    // Check if it's prayer time (not sunrise/imsak if we want to filter)
+    // For now, play for all NEXT prayers
+    
+    console.log(`Triggering Adzan for ${prayerName}`);
+    
+    // Play Audio
+    dom.adzanAudio.play().catch(e => {
+        console.log("Autoplay prevented:", e);
+        // Fallback: Show notification if supported
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(`Waktunya Shalat ${prayerName}`);
+        }
+    });
+}
+
+// Check Notification Permission
+if ("Notification" in window && Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
+
+initAdzan();

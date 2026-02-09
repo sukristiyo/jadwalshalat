@@ -8,6 +8,7 @@
     <meta name="keywords" content="jadwal shalat, waktu sholat, arah kiblat, al quran online, al quran digital, jadwal imsakiyah, jadwal buka puasa, shalat 5 waktu, waktu imsak, waktu subuh, waktu dhuhur, waktu ashar, waktu maghrib, waktu isya, arah kiblat online, kompas kiblat, bacaan sholat latin, terjemahan al quran indonesia">
     <meta name="author" content="Sukristiyo">
     <meta name="theme-color" content="#008B4B">
+
     <link rel="canonical" href="https://jadwalsholatku.site/">
 
     <!-- Open Graph / Facebook -->
@@ -251,6 +252,25 @@
                             <option value="3" data-i18n="method_mwl">Muslim World League</option>
                             <option value="4" data-i18n="method_makkah">Umm Al-Qura (Makkah)</option>
                         </select>
+                        <div class="form-group">
+                            <label style="display:flex; justify-content:space-between; align-items:center;">
+                                <span data-i18n="adzan_notification">Notifikasi Adzan</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="adzan-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label data-i18n="pre_reminder">Pengingat Sebelum Shalat</label>
+                            <select id="pre-reminder-select">
+                                <option value="0" data-i18n="off">Matikan</option>
+                                <option value="5">5 Menit Sebelumnya</option>
+                                <option value="10">10 Menit Sebelumnya</option>
+                                <option value="15">15 Menit Sebelumnya</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -316,32 +336,72 @@
         <!-- Quran Detail Modal -->
         <div id="quran-modal" class="modal full-screen hidden">
             <div class="modal-content full-screen-content">
-                <div class="modal-header sticky-header">
+                <div class="modal-header quran-header-redesign sticky-header">
                     <div class="header-left">
-                        <button id="close-quran" class="icon-btn"><i class="ph ph-arrow-left"></i></button>
-                        <h2 id="quran-title-modal">Nama Surah</h2>
+                        <button id="close-quran" class="icon-btn back-btn">
+                            <i class="ph ph-arrow-left"></i>
+                            <span class="desktop-only">Daftar Surah</span>
+                        </button>
                     </div>
-                    <div class="header-right">
-                        <div class="quran-controls">
-                            <label class="inline-toggle" title="Tampilkan Latin">
-                                <span>Latin</span>
-                                <div class="switch-container">
-                                    <input type="checkbox" id="toggle-latin-switch">
-                                    <span class="slider round"></span>
-                                </div>
-                            </label>
-                            <label class="inline-toggle" title="Tampilkan Terjemahan">
-                                <span>Terjemah</span>
-                                <div class="switch-container">
-                                    <input type="checkbox" id="toggle-translation-switch">
-                                    <span class="slider round"></span>
-                                </div>
-                            </label>
-                            <button id="play-quran-btn" class="icon-btn highlight">
-                                <i class="ph-fill ph-play-circle"></i> 
-                                <span class="btn-text" data-i18n="play_audio">Putar Audio</span>
-                            </button>
+                    
+                    <div class="header-center">
+                        <div class="surah-nav">
+                            <button id="prev-surah-btn" class="nav-btn"><i class="ph ph-caret-left"></i></button>
+                            <div class="surah-title-container">
+                                <h2 id="quran-title-modal">Al-Fatihah</h2>
+                                <span id="quran-surah-info" class="surah-subtitle">Mekah • 7 Ayat</span>
+                            </div>
+                            <button id="next-surah-btn" class="nav-btn"><i class="ph ph-caret-right"></i></button>
                         </div>
+                    </div>
+
+                    <div class="header-right">
+                        <button id="quran-settings-btn" class="icon-btn settings-trigger">
+                            <i class="ph-fill ph-gear"></i>
+                            <span class="desktop-only" data-i18n="settings">Pengaturan</span>
+                        </button>
+                        
+                        <!-- Settings Popover -->
+                        <div id="quran-settings-popover" class="settings-popover hidden">
+                            <div class="popover-header">
+                                <h3>Pengaturan</h3>
+                                <button id="close-quran-settings" class="close-btn"><i class="ph ph-x"></i></button>
+                            </div>
+                            <div class="popover-body">
+                                <div class="setting-item">
+                                    <span>Transliterasi (Latin)</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-latin-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Terjemah Indonesia</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-translation-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Mode Halaman</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="toggle-page-mode-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item full-width">
+                                    <span>Pilih Qori</span>
+                                    <select id="qori-select" class="styled-select">
+                                        <option value="ar.alafasy">Mishary Rashid Alafasy</option>
+                                        <option value="ar.alghamdi">Saad Al Ghamdi</option>
+                                        <option value="ar.husary">Mahmoud Khalil Al-Husary</option>
+                                        <option value="ar.sudais">Abdurrahmaan As-Sudais</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     </div>
                 </div>
                 <!-- Audio Player (Hidden initially) -->
@@ -380,6 +440,8 @@
         });
       }
     </script>
+    <!-- Adzan Audio -->
+    <audio id="adzan-audio" src="https://media.blubrry.com/muslim_central_quran/podcasts.qurancentral.com/adhan/adhan-makkah-2.mp3" preload="none"></audio>
     <script type="module" src="main.js"></script>
 </body>
 </html>
