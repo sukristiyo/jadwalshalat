@@ -158,6 +158,13 @@ const dom = {
     quranSettingsPopover: document.getElementById('quran-settings-popover'),
     closeQuranSettingsBtn: document.getElementById('close-quran-settings'),
     
+    // Search & Theme
+    quranSearchToggle: document.getElementById('quran-search-toggle'),
+    quranThemeToggle: document.getElementById('quran-theme-toggle'),
+    quranSearchContainer: document.getElementById('quran-search-container'),
+    quranSearchInput: document.getElementById('quran-search-input'),
+    closeSearchBtn: document.getElementById('close-search-btn'),
+    
     // Toggles (New IDs)
     latinSwitch: document.getElementById('toggle-latin-switch'),
     transSwitch: document.getElementById('toggle-translation-switch'),
@@ -227,6 +234,55 @@ function initQuranSettings() {
         };
     }
 
+    // Search Toggle
+    // ... (rest of search/theme logic is fine, just removing the extra brace above)
+
+    if (dom.quranSearchToggle && dom.quranSearchContainer) {
+        dom.quranSearchToggle.onclick = () => {
+            dom.quranSearchContainer.classList.remove('hidden');
+            if (dom.quranSearchInput) dom.quranSearchInput.focus();
+        };
+
+        if (dom.closeSearchBtn) {
+            dom.closeSearchBtn.onclick = () => {
+                dom.quranSearchContainer.classList.add('hidden');
+                if (dom.quranSearchInput) {
+                    dom.quranSearchInput.value = '';
+                    filterAyahs(''); // Reset filter
+                }
+            };
+        }
+
+        if (dom.quranSearchInput) {
+            dom.quranSearchInput.oninput = (e) => {
+                filterAyahs(e.target.value);
+            };
+        }
+    }
+
+    // Theme Toggle
+    if (dom.quranThemeToggle) {
+        dom.quranThemeToggle.onclick = () => {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // icon update
+            dom.quranThemeToggle.innerHTML = newTheme === 'dark' 
+                ? '<i class="ph-fill ph-sun"></i>' 
+                : '<i class="ph ph-moon"></i>';
+        };
+        
+        // Init Icon based on current state
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        dom.quranThemeToggle.innerHTML = currentTheme === 'dark' 
+            ? '<i class="ph-fill ph-sun"></i>' 
+            : '<i class="ph ph-moon"></i>';
+    }
+
     if (dom.qoriSelect) {
         dom.qoriSelect.value = state.quranSettings.qori || 'ar.alafasy';
         dom.qoriSelect.onchange = () => {
@@ -257,6 +313,24 @@ function initQuranSettings() {
              }
         };
     }
+}
+
+// Filter Ayahs Logic
+function filterAyahs(query) {
+    const term = query.toLowerCase();
+    const ayahItems = document.querySelectorAll('.ayah-item');
+    
+    ayahItems.forEach(item => {
+        const arabic = item.querySelector('.ayah-arabic')?.innerText.toLowerCase() || '';
+        const latin = item.querySelector('.ayah-latin')?.innerText.toLowerCase() || '';
+        const translation = item.querySelector('.ayah-translation')?.innerText.toLowerCase() || '';
+        
+        if (arabic.includes(term) || latin.includes(term) || translation.includes(term)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
 function initTheme() {
@@ -993,6 +1067,25 @@ window.openSurahDetail = async function(number) {
     const title = document.getElementById('quran-title-modal');
     const subtitle = document.getElementById('quran-surah-info');
     
+    // Wire up Close Buttons
+    const closeBtn = document.getElementById('close-quran');
+    const closeMainBtn = document.getElementById('close-quran-main');
+    
+    const closeModal = () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300); // Wait for transition
+        // Stop audio if playing
+        if (state.audioPlayer) {
+            state.audioPlayer.pause();
+            state.audioPlayer.currentTime = 0;
+        }
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (closeMainBtn) closeMainBtn.onclick = closeModal;
+
     // Init settings logic if not already (or ensure listeners are active)
     initQuranSettings();
 
@@ -1037,34 +1130,43 @@ window.openSurahDetail = async function(number) {
     try {
         const qoriEdition = state.quranSettings.qori || 'ar.alafasy';
         
-        let arabicData, transData, audioData, latinData;
+        let arabicData, transData, latinData;
+        let audioData = null; // Audio is optional/secondary
 
+        // 1. Fetch Text Data (Critical)
         try {
-            const [arabicRes, transRes, audioRes, latinRes] = await Promise.all([
+            const [arabicRes, transRes, latinRes] = await Promise.all([
                 fetch(`https://api.alquran.cloud/v1/surah/${number}`),
                 fetch(`https://api.alquran.cloud/v1/surah/${number}/id.indonesian`),
-                fetch(`https://api.alquran.cloud/v1/surah/${number}/${qoriEdition}`),
                 fetch(`https://api.alquran.cloud/v1/surah/${number}/en.transliteration`)
             ]);
 
-            console.log("Responses received:", { arabicRes, transRes, audioRes, latinRes });
-
             arabicData = await arabicRes.json();
             transData = await transRes.json();
-            audioData = await audioRes.json();
             latinData = await latinRes.json();
         
-        } catch (innerError) {
-             console.error("Inner Fetch Error:", innerError);
-             throw innerError;
+        } catch (textError) {
+             console.error("Text Data Fetch Error:", textError);
+             throw new Error("Gagal memuat teks Quran.");
         }
 
         if (arabicData.code !== 200) throw new Error("API Error");
 
+        // 2. Fetch Audio Data (Non-Critical)
+        try {
+             const audioRes = await fetch(`https://api.alquran.cloud/v1/surah/${number}/${qoriEdition}`);
+             const audioJson = await audioRes.json();
+             if (audioJson.code === 200) {
+                 audioData = audioJson;
+             }
+        } catch (audioError) {
+             console.warn("Audio Fetch Error (Continuing without audio):", audioError);
+        }
+
         const surah = arabicData.data;
         const trans = transData.data.ayahs;
-        const audio = audioData.data.ayahs;
         const latin = latinData.data.ayahs;
+        const audio = audioData ? audioData.data.ayahs : []; // Fallback to empty if failed
 
         if (title) title.innerText = surah.englishName;
         if (subtitle) subtitle.innerText = `${surah.revelationType} • ${surah.numberOfAyahs} Ayat`;
@@ -1075,8 +1177,8 @@ window.openSurahDetail = async function(number) {
         }
 
         surah.ayahs.forEach((ayah, index) => {
-            const translationText = trans[index].text;
-            const latinText = latin[index].text;
+            const translationText = trans[index]?.text || '';
+            const latinText = latin[index]?.text || '';
             
             html += `
             <div class="ayah-item" id="ayah-${index}">
@@ -1135,7 +1237,9 @@ window.openSurahDetail = async function(number) {
         }
 
         function playAyah(index) {
-            if (index >= audio.length) {
+            // Check if audio data is available
+            if (!audio || audio.length === 0 || !audio[index] || !audio[index].audio) {
+                alert("Audio tidak tersedia untuk ayat ini (Gagal memuat dari server).");
                 currentPlayingIndex = -1;
                 updatePlayIcons();
                 return;
@@ -1152,7 +1256,10 @@ window.openSurahDetail = async function(number) {
             }
 
             audioPlayer.src = audio[index].audio;
-            audioPlayer.play().catch(e => console.log("Play error", e));
+            audioPlayer.play().catch(e => {
+                console.error("Play error", e);
+                alert("Gagal memutar audio.");
+            });
             
             updatePlayIcons();
             

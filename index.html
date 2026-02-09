@@ -337,71 +337,95 @@
         <div id="quran-modal" class="modal full-screen hidden">
             <div class="modal-content full-screen-content">
                 <div class="modal-header quran-header-redesign sticky-header">
-                    <div class="header-left">
-                        <button id="close-quran" class="icon-btn back-btn">
-                            <i class="ph ph-arrow-left"></i>
-                            <span class="desktop-only">Daftar Surah</span>
-                        </button>
-                    </div>
-                    
-                    <div class="header-center">
-                        <div class="surah-nav">
-                            <button id="prev-surah-btn" class="nav-btn"><i class="ph ph-caret-left"></i></button>
-                            <div class="surah-title-container">
-                                <h2 id="quran-title-modal">Al-Fatihah</h2>
-                                <span id="quran-surah-info" class="surah-subtitle">Mekah • 7 Ayat</span>
+                    <!-- Top Row: Search & Theme (Right Aligned), Left Empty -->
+                    <div class="quran-header-top">
+                        <div class="header-left-empty"></div> <!-- No Logo as requested -->
+                        <div class="header-right-controls">
+                            <button id="quran-search-toggle" class="icon-btn settings-trigger">
+                                <i class="ph ph-magnifying-glass"></i>
+                            </button>
+                            <button id="quran-theme-toggle" class="icon-btn settings-trigger">
+                                <i class="ph ph-moon"></i>
+                            </button>
+                            
+                            <button id="close-quran-main" class="icon-btn settings-trigger" aria-label="Tutup">
+                                <i class="ph ph-x"></i>
+                            </button>
+                            
+                            <!-- Search Input Overlay (Contained here) -->
+                            <div id="quran-search-container" class="search-container hidden">
+                                <input type="text" id="quran-search-input" placeholder="Cari ayat (Latin/Terjemah)...">
+                                <button id="close-search-btn" class="close-search"><i class="ph ph-x"></i></button>
                             </div>
-                            <button id="next-surah-btn" class="nav-btn"><i class="ph ph-caret-right"></i></button>
                         </div>
                     </div>
 
-                    <div class="header-right">
-                        <button id="quran-settings-btn" class="icon-btn settings-trigger">
-                            <i class="ph-fill ph-gear"></i>
-                            <span class="desktop-only" data-i18n="settings">Pengaturan</span>
-                        </button>
+                    <!-- Bottom Row: Navigation & Settings -->
+                    <div class="quran-header-bottom">
+                        <div class="header-left">
+                            <button id="close-quran" class="icon-btn back-btn">
+                                <i class="ph ph-arrow-left"></i>
+                                <span class="desktop-only">Daftar Surah</span>
+                            </button>
+                        </div>
                         
-                        <!-- Settings Popover -->
-                        <div id="quran-settings-popover" class="settings-popover hidden">
-                            <div class="popover-header">
-                                <h3>Pengaturan</h3>
-                                <button id="close-quran-settings" class="close-btn"><i class="ph ph-x"></i></button>
+                        <div class="header-center">
+                            <div class="surah-nav">
+                                <button id="prev-surah-btn" class="nav-btn"><i class="ph ph-caret-left"></i></button>
+                                <div class="surah-title-container">
+                                    <h2 id="quran-title-modal">Al-Fatihah</h2>
+                                    <span id="quran-surah-info" class="surah-subtitle">Mekah • 7 Ayat</span>
+                                </div>
+                                <button id="next-surah-btn" class="nav-btn"><i class="ph ph-caret-right"></i></button>
                             </div>
-                            <div class="popover-body">
-                                <div class="setting-item">
-                                    <span>Transliterasi (Latin)</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-latin-switch">
-                                        <span class="slider round"></span>
-                                    </label>
+                        </div>
+
+                        <div class="header-right">
+                             <button id="quran-settings-btn" class="icon-btn settings-trigger">
+                                <i class="ph-fill ph-gear"></i>
+                                <span class="desktop-only" data-i18n="settings">Pengaturan</span>
+                            </button>
+
+                            <!-- Settings Popover -->
+                            <div id="quran-settings-popover" class="settings-popover hidden">
+                                <div class="popover-header">
+                                    <h3>Pengaturan</h3>
+                                    <button id="close-quran-settings" class="close-btn"><i class="ph ph-x"></i></button>
                                 </div>
-                                <div class="setting-item">
-                                    <span>Terjemah Indonesia</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-translation-switch">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item">
-                                    <span>Mode Halaman</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="toggle-page-mode-switch">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div class="setting-item full-width">
-                                    <span>Pilih Qori</span>
-                                    <select id="qori-select" class="styled-select">
-                                        <option value="ar.alafasy">Mishary Rashid Alafasy</option>
-                                        <option value="ar.alghamdi">Saad Al Ghamdi</option>
-                                        <option value="ar.husary">Mahmoud Khalil Al-Husary</option>
-                                        <option value="ar.sudais">Abdurrahmaan As-Sudais</option>
-                                    </select>
+                                <div class="popover-body">
+                                    <div class="setting-item">
+                                        <span>Transliterasi (Latin)</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="toggle-latin-switch">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-item">
+                                        <span>Terjemah Indonesia</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="toggle-translation-switch">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-item">
+                                        <span>Mode Halaman</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="toggle-page-mode-switch">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-item full-width">
+                                        <span>Pilih Qori</span>
+                                        <select id="qori-select" class="styled-select">
+                                            <option value="ar.alafasy">Mishary Rashid Alafasy</option>
+                                            <option value="ar.alghamdi">Saad Al Ghamdi</option>
+                                            <option value="ar.husary">Mahmoud Khalil Al-Husary</option>
+                                            <option value="ar.sudais">Abdurrahmaan As-Sudais</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
                     </div>
                 </div>
                 <!-- Audio Player (Hidden initially) -->
